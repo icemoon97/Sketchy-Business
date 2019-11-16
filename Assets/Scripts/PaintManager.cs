@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,8 @@ public class PaintManager : MonoBehaviour {
     public RawImage image;
 
     private Texture2D canvas;
+    private List<Texture2D> history; //list of all previous states of the canvas
+    private int historyIndex; //current place in history (tracks user if they undo/redo multiple times)
 
     public BrushStyle brushStyle;
     public int brushSize;
@@ -29,6 +32,10 @@ public class PaintManager : MonoBehaviour {
         ClearCanvas();
 
         image.texture = canvas;
+
+        history = new List<Texture2D>();
+        SaveState();
+        historyIndex = 0;
 
         prevMousePosition = getAdjustedMousePos();
     }
@@ -109,6 +116,7 @@ public class PaintManager : MonoBehaviour {
         canvas.Apply();
     }
 
+    //saves current canvas state to user paintings folder as a .png
     public void SaveImage()
     {
         string date = DateTime.Now.ToString();
@@ -116,5 +124,66 @@ public class PaintManager : MonoBehaviour {
         date = date.Replace(":", ".");
 
         System.IO.File.WriteAllBytes(Application.dataPath + "\\User Paintings\\(" + date + ").png", canvas.EncodeToPNG());
+    }
+
+    //adds current canvas state to history
+    private void SaveState()
+    {
+        Texture2D state = new Texture2D(canvas.width, canvas.height);
+        for (int x = 0; x < state.width; x++)
+        {
+            for (int y = 0; y < state.height; y++)
+            {
+                state.SetPixel(x, y, canvas.GetPixel(x, y));
+            }
+        }
+        state.Apply();
+        
+        //if the user undoed several states, then painted more, need to remove the alternate future
+        if (historyIndex + 1 < history.Count)
+        {
+            history.RemoveRange(historyIndex + 1, history.Count - (historyIndex + 1));
+        }
+
+        history.Add(state);
+        historyIndex++;
+    }
+
+    //loads previous texture from history
+    public void Undo()
+    {
+        if (historyIndex > 0)
+        {
+            historyIndex--;
+            LoadState(historyIndex);
+        }
+    }
+
+    public void Redo()
+    {
+        if (historyIndex < history.Count - 1)
+        {
+            historyIndex++;
+            LoadState(historyIndex);
+        }
+    }
+
+    //loads texture from history to canvas
+    private void LoadState(int index)
+    {
+        for (int x = 0; x < canvas.width; x++)
+        {
+            for (int y = 0; y < canvas.height; y++)
+            {
+                canvas.SetPixel(x, y, history[index].GetPixel(x, y));
+            }
+        }
+        canvas.Apply();
+    }
+
+    public void OnMouseDragEnd()
+    {
+        SaveState();
+        Debug.Log(history.Count);
     }
 }
