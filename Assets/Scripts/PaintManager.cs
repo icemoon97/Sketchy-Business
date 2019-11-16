@@ -26,7 +26,7 @@ public class PaintManager : MonoBehaviour {
 	void Start ()
     {
         canvas = new Texture2D((int)image.rectTransform.rect.width, (int)image.rectTransform.rect.height);
-        canvas.name = "testing";
+        ClearCanvas();
 
         image.texture = canvas;
 
@@ -95,6 +95,18 @@ public class PaintManager : MonoBehaviour {
     public void SetColor(GameObject button)
     {
         brushColor = button.GetComponent<Image>().color;
+    }
+
+    public void ClearCanvas()
+    {
+        for (int x = 0; x < canvas.width; x++)
+        {
+            for (int y = 0; y < canvas.height; y++)
+            {
+                canvas.SetPixel(x, y, Color.white);
+            }
+        }
+        canvas.Apply();
     }
 
     public void SaveImage()
