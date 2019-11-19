@@ -10,12 +10,11 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
-        targetPos.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        
     }
 
     public void StartMove()
     {
-        targetPos.position = new Vector3(targetPos.position.x + 6, targetPos.position.y, targetPos.position.z);
         StartCoroutine("move");
     }
 
@@ -33,7 +32,7 @@ public class CameraController : MonoBehaviour
             transform.position = smoothedPosition;
             transform.rotation = smoothedRotation;
 
-            yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSeconds(0.02f);
         }
     }
 }

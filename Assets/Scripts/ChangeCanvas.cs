@@ -10,7 +10,7 @@ public class ChangeCanvas : MonoBehaviour
     public Transform cameraPos;
     public Transform finalPos;
 
-    public CameraPan cameraP;
+    //public CameraPan cameraP;
 
     public bool clicked;
 
@@ -21,6 +21,7 @@ public class ChangeCanvas : MonoBehaviour
 
     public void Update()
     {
+        /*
         if (clicked) 
         {
             mainMenu.SetActive(false);
@@ -29,5 +30,6 @@ public class ChangeCanvas : MonoBehaviour
                 levelSelect.SetActive(true);
             }
         }
+        */
     }
 }
