@@ -28,13 +28,12 @@ public class PaintManager : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        canvas = new Texture2D((int)image.rectTransform.rect.width, (int)image.rectTransform.rect.height);
-        ClearCanvas();
+        canvas = new Texture2D((int)image.rectTransform.rect.width, (int)image.rectTransform.rect.height); 
 
         image.texture = canvas;
 
         history = new List<Texture2D>();
-        SaveState();
+        ClearCanvas();
         historyIndex = 0;
 
         prevMousePosition = getAdjustedMousePos();
@@ -69,7 +68,7 @@ public class PaintManager : MonoBehaviour {
                     if (brushStyle == BrushStyle.SquareBrush 
                         || (brushStyle == BrushStyle.CircularBrush && Vector2.Distance(pos, pixel) < brushSize / 2))
                     {
-                        canvas.SetPixel(Mathf.RoundToInt(pos.x) + x, Mathf.RoundToInt(pos.y) + y, brushColor);
+                        canvas.SetPixel(Mathf.RoundToInt(pixel.x), Mathf.RoundToInt(pixel.y), brushColor);
                     }
                 }
             }
@@ -114,6 +113,8 @@ public class PaintManager : MonoBehaviour {
             }
         }
         canvas.Apply();
+
+        SaveState();
     }
 
     //saves current canvas state to user paintings folder as a .png
@@ -127,7 +128,7 @@ public class PaintManager : MonoBehaviour {
     }
 
     //adds current canvas state to history
-    private void SaveState()
+    public void SaveState()
     {
         Texture2D state = new Texture2D(canvas.width, canvas.height);
         for (int x = 0; x < state.width; x++)
@@ -179,11 +180,5 @@ public class PaintManager : MonoBehaviour {
             }
         }
         canvas.Apply();
-    }
-
-    public void OnMouseDragEnd()
-    {
-        SaveState();
-        Debug.Log(history.Count);
     }
 }
