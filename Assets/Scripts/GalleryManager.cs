@@ -15,6 +15,10 @@ public class GalleryManager : MonoBehaviour
     public Transform displayLoc;
     public Transform stackLoc;
 
+    public Button nextButton;
+    public Button prevButton;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -49,12 +53,6 @@ public class GalleryManager : MonoBehaviour
         paintings[0].transform.rotation = displayLoc.rotation;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void NextPainting()
     {
         if (displayIndex < paintings.Count - 1)
@@ -83,6 +81,9 @@ public class GalleryManager : MonoBehaviour
 
     private IEnumerator MovePainting(Transform painting, Vector3 targetPos, Quaternion targetRot, float speed)
     {
+        nextButton.interactable = false;
+        prevButton.interactable = false;
+
         float progress = 0; //counts up to 1
         while (progress < 1)
         {
@@ -96,7 +97,15 @@ public class GalleryManager : MonoBehaviour
             Quaternion smoothedRotation = Quaternion.Lerp(painting.rotation, targetRot, progress);
             painting.rotation = smoothedRotation;
 
+            if (Vector3.Distance(painting.position, targetPos) < 0.01f)  //stops the painting from asymptotically approaching position and taking too long
+            {
+                break;
+            }
+
             yield return new WaitForSeconds(0.02f);
         }
+
+        nextButton.interactable = true;
+        prevButton.interactable = true;
     }
 }
