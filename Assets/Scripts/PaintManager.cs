@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 
 public class PaintManager : MonoBehaviour {
@@ -180,5 +181,11 @@ public class PaintManager : MonoBehaviour {
             }
         }
         canvas.Apply();
+    }
+
+    //TEMP ONLY FOR 11/25 DEMO
+    public void BackToMenu()
+    {
+        SceneManager.LoadScene("Main Menu");
     }
 }

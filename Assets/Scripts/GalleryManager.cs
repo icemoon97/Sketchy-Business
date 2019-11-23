@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class GalleryManager : MonoBehaviour
 {
 
+    public float moveSpeed = 0.02f;
+
     public GameObject galleryDisplayPrefab;
 
     private List<GameObject> paintings;
@@ -58,11 +60,11 @@ public class GalleryManager : MonoBehaviour
         if (displayIndex < paintings.Count - 1)
         {
             //moves currently displayed painting back to stack
-            StartCoroutine(MovePainting(paintings[displayIndex].transform, stackLoc.position + new Vector3(0, 0.25f * displayIndex, 0), stackLoc.rotation, 0.02f));
+            StartCoroutine(MovePainting(paintings[displayIndex].transform, stackLoc.position + new Vector3(0, 0.25f * displayIndex, 0), stackLoc.rotation, moveSpeed));
             displayIndex++;
 
             //moves next painting from stack to display
-            StartCoroutine(MovePainting(paintings[displayIndex].transform, displayLoc.position, displayLoc.rotation, 0.02f));
+            StartCoroutine(MovePainting(paintings[displayIndex].transform, displayLoc.position, displayLoc.rotation, moveSpeed));
         }
     }
 
@@ -71,11 +73,11 @@ public class GalleryManager : MonoBehaviour
         if (displayIndex > 0)
         {
             //moves currently displayed painting back to stack
-            StartCoroutine(MovePainting(paintings[displayIndex].transform, stackLoc.position + new Vector3(0, 0.25f * displayIndex, 0), stackLoc.rotation, 0.02f));
+            StartCoroutine(MovePainting(paintings[displayIndex].transform, stackLoc.position + new Vector3(0, 0.25f * displayIndex, 0), stackLoc.rotation, moveSpeed));
             displayIndex--;
 
             //moves next painting from stack to display
-            StartCoroutine(MovePainting(paintings[displayIndex].transform, displayLoc.position, displayLoc.rotation, 0.02f));
+            StartCoroutine(MovePainting(paintings[displayIndex].transform, displayLoc.position, displayLoc.rotation, moveSpeed));
         }
     }
 
