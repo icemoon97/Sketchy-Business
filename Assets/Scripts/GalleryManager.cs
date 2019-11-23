@@ -25,6 +25,10 @@ public class GalleryManager : MonoBehaviour
     void Start()
     {
         DirectoryInfo paintingFolder = new DirectoryInfo(Application.dataPath + "\\User Paintings");
+        if (!paintingFolder.Exists)
+        {
+            paintingFolder.Create();
+        }
         List<Texture2D> paintingTextures = new List<Texture2D>();
         foreach (FileInfo file in paintingFolder.GetFiles())
         {
