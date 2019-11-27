@@ -149,6 +149,8 @@ public class PaintManager : MonoBehaviour {
 
         history.Add(state);
         historyIndex++;
+
+        Debug.Log(canvas.GetPixel(1, 1));
     }
 
     //loads previous texture from history

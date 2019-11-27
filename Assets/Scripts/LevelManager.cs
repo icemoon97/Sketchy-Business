@@ -22,4 +22,9 @@ public class LevelManager : MonoBehaviour
     {
         SceneManager.LoadScene("Painting");
     }
+    
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
 }
