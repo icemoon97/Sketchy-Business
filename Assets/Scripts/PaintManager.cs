@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-
 public class PaintManager : MonoBehaviour {
 
     public RawImage image;
@@ -63,13 +62,13 @@ public class PaintManager : MonoBehaviour {
         {
             for (int y = -brushSize / 2; y < brushSize / 2; y++)
             {
-                Vector2 pixel = new Vector2(pos.x + x, pos.y + y);
+                Vector2 pixel = new Vector2(Mathf.RoundToInt(pos.x + x), Mathf.RoundToInt(pos.y + y));
                 if (pixel.x >= 0 && pixel.x < canvas.width && pixel.y >= 0 && pixel.y < canvas.height) //makes sure pixels are within bounds
                 {
                     if (brushStyle == BrushStyle.SquareBrush 
                         || (brushStyle == BrushStyle.CircularBrush && Vector2.Distance(pos, pixel) < brushSize / 2))
                     {
-                        canvas.SetPixel(Mathf.RoundToInt(pixel.x), Mathf.RoundToInt(pixel.y), brushColor);
+                        canvas.SetPixel((int)pixel.x, (int)pixel.y, brushColor);
                     }
                 }
             }
