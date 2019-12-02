@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class PaintManager : MonoBehaviour {
 
+    public Image referencePainting;
+
     public RawImage image;
 
     private Texture2D canvas;
@@ -28,6 +30,8 @@ public class PaintManager : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
+        referencePainting.sprite = GameManager.referencePaintingToLoad;
+
         canvas = new Texture2D((int)image.rectTransform.rect.width, (int)image.rectTransform.rect.height); 
 
         image.texture = canvas;
@@ -80,11 +84,11 @@ public class PaintManager : MonoBehaviour {
     private Vector3 getAdjustedMousePos()
     {
         Vector3 mousePos = Input.mousePosition;
-        Vector3 adjustedMousePos = new Vector3(mousePos.x - Screen.width / 2, mousePos.y - Screen.height / 2, 0);
 
-        Vector3 canvasPos = image.rectTransform.localPosition;
+        Vector3[] corners = new Vector3[4];
+        image.rectTransform.GetWorldCorners(corners);
 
-        return adjustedMousePos - canvasPos;
+        return mousePos - corners[0];
     }
 
     public void SetBrushSize(int size)
@@ -148,8 +152,6 @@ public class PaintManager : MonoBehaviour {
 
         history.Add(state);
         historyIndex++;
-
-        Debug.Log(canvas.GetPixel(1, 1));
     }
 
     //loads previous texture from history

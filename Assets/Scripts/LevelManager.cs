@@ -5,21 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public LevelInfo[] levels;
 
-    // Update is called once per frame
-    void Update()
+    public void LoadLevel(int index)
     {
-        
-    }
-
-    //TEMP ONLY FOR 11/25 DEMO
-    public void GoToLevel()
-    {
+        GameManager.referencePaintingToLoad = levels[index].referencePainting;
         SceneManager.LoadScene("Painting");
     }
     
