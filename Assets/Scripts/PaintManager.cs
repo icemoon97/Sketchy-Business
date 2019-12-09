@@ -3,9 +3,12 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class PaintManager : MonoBehaviour {
+
+    public GameObject paintingPanel;
+    public GameObject evalPanel;
+    public EvaluationManager evalManager;
 
     public Image referencePainting;
 
@@ -116,50 +119,46 @@ public class PaintManager : MonoBehaviour {
     //which would be super intensive and produce weird behavior with the paint bucket
     public void PaintBucket()
     {
-        if (brushStyle == BrushStyle.PaintBucket)
+        if (brushStyle != BrushStyle.PaintBucket)
         {
-            Vector3 mousePos = getAdjustedMousePos();
-            Vector2Int pixel = new Vector2Int(Mathf.RoundToInt(mousePos.x), Mathf.RoundToInt(mousePos.y));
-            Color overwrite = canvas.GetPixel(pixel.x, pixel.y);
-            Debug.Log("Start: " + pixel + ", " + overwrite.ToString());
+            return;
+        }
 
-            Rect canvasBounds = new Rect(0, 0, canvas.width, canvas.height);
+        Vector3 mousePos = getAdjustedMousePos();
+        Color targetColor = canvas.GetPixel((int)mousePos.x, (int)mousePos.y);
+        if (targetColor == brushColor)
+        {
+            return;
+        }
 
-            HashSet<Vector2Int> points = new HashSet<Vector2Int>();
-            points.Add(pixel);
+        Vector2Int startNode = new Vector2Int((int)mousePos.x, (int)mousePos.y);
+        canvas.SetPixel(startNode.x, startNode.y, brushColor);
+        List<Vector2Int> queue = new List<Vector2Int>();
+        queue.Add(startNode);
+        while (queue.Count > 0)
+        {
+            Vector2Int node = queue[0];
+            queue.RemoveAt(0);
 
-            HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
-
-            int i = 0;
-
-            while (points.Count > 0 && i < 1000)
+            if (canvas.GetPixel(node.x + 1, node.y) == targetColor)
             {
-                i++;
-                Vector2Int point = new Vector2Int(-1, -1); //placeholder
-                foreach (Vector2Int item in points)
-                {
-                    point = item;
-                    break;
-                }
-                Debug.Log("Point: " + point + " , Color: " + canvas.GetPixel(point.x, point.y));
-                if (canvas.GetPixel(point.x, point.y) == overwrite) {
-                    canvas.SetPixel(point.x, point.y, brushColor);
-                    points.Remove(point);
-                    visited.Add(point);
-                    Debug.Log(string.Join(" ", visited));
-                    for (int x = -1; x <= 1; x++)
-                    {
-                        for (int y = -1; y <= 1; y++)
-                        {
-                            Vector2Int test = new Vector2Int(point.x + x, point.y + y);
-                            //Debug.Log("Test: " + test + ", " + !points.Contains(test) + ", " + !visited.Contains(test)  + ", " + canvasBounds.Contains(test));
-                            if (!points.Contains(test) && !visited.Contains(test) && canvasBounds.Contains(test))
-                            {
-                                points.Add(test);
-                            }
-                        }
-                    }
-                }
+                canvas.SetPixel(node.x + 1, node.y, brushColor);
+                queue.Add(new Vector2Int(node.x + 1, node.y));
+            }
+            if (canvas.GetPixel(node.x - 1, node.y) == targetColor)
+            {
+                canvas.SetPixel(node.x - 1, node.y, brushColor);
+                queue.Add(new Vector2Int(node.x - 1, node.y));
+            }
+            if (canvas.GetPixel(node.x, node.y + 1) == targetColor)
+            {
+                canvas.SetPixel(node.x, node.y + 1, brushColor);
+                queue.Add(new Vector2Int(node.x, node.y + 1));
+            }
+            if (canvas.GetPixel(node.x, node.y - 1) == targetColor)
+            {
+                canvas.SetPixel(node.x, node.y - 1, brushColor);
+                queue.Add(new Vector2Int(node.x, node.y - 1));
             }
         }
     }
@@ -211,7 +210,7 @@ public class PaintManager : MonoBehaviour {
     }
 
     //saves current canvas state to user paintings folder as a .png
-    public void SaveImage()
+    private void SaveImage()
     {
         string date = DateTime.Now.ToString();
         date = date.Replace("/", "."); // "/" and ":" can't be in file names
@@ -275,9 +274,11 @@ public class PaintManager : MonoBehaviour {
         canvas.Apply();
     }
 
-    //TEMP ONLY FOR 11/25 DEMO
-    public void BackToMenu()
+    public void SubmitPainting()
     {
-        SceneManager.LoadScene("Main Menu");
+        SaveImage();
+        paintingPanel.SetActive(false);
+        evalPanel.SetActive(true);
+        evalManager.Evaluate(canvas);
     }
 }
