@@ -135,30 +135,26 @@ public class PaintManager : MonoBehaviour {
         canvas.SetPixel(startNode.x, startNode.y, brushColor);
         List<Vector2Int> queue = new List<Vector2Int>();
         queue.Add(startNode);
+
+        Vector2Int[] vectors = new Vector2Int[] {
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
+        };
+
         while (queue.Count > 0)
         {
             Vector2Int node = queue[0];
             queue.RemoveAt(0);
 
-            if (canvas.GetPixel(node.x + 1, node.y) == targetColor)
+            foreach (Vector2Int vector in vectors)
             {
-                canvas.SetPixel(node.x + 1, node.y, brushColor);
-                queue.Add(new Vector2Int(node.x + 1, node.y));
-            }
-            if (canvas.GetPixel(node.x - 1, node.y) == targetColor)
-            {
-                canvas.SetPixel(node.x - 1, node.y, brushColor);
-                queue.Add(new Vector2Int(node.x - 1, node.y));
-            }
-            if (canvas.GetPixel(node.x, node.y + 1) == targetColor)
-            {
-                canvas.SetPixel(node.x, node.y + 1, brushColor);
-                queue.Add(new Vector2Int(node.x, node.y + 1));
-            }
-            if (canvas.GetPixel(node.x, node.y - 1) == targetColor)
-            {
-                canvas.SetPixel(node.x, node.y - 1, brushColor);
-                queue.Add(new Vector2Int(node.x, node.y - 1));
+                if (canvas.GetPixel(node.x + vector.x, node.y + vector.y) == targetColor)
+                {
+                    canvas.SetPixel(node.x + vector.x, node.y + vector.y, brushColor);
+                    queue.Add(new Vector2Int(node.x + vector.x, node.y + vector.y));
+                }
             }
         }
     }

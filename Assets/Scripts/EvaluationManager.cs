@@ -25,6 +25,8 @@ public class EvaluationManager : MonoBehaviour
         }
 
         scoreText.text = "Score: " + colors.Count;
+
+        GameManager.score += colors.Count;
     }
 
     public void BackToMenu()

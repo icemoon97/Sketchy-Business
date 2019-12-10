@@ -11,15 +11,17 @@ public class GalleryManager : MonoBehaviour
 
     public GameObject galleryDisplayPrefab;
 
-    private List<GameObject> paintings;
+    private List<Transform> paintings;
     private int displayIndex;
 
     public Transform displayLoc;
-    public Transform stackLoc;
+    public Transform stackLocStart;
+    private List<Vector3> stackLocs;
 
     public Button nextButton;
     public Button prevButton;
 
+    public Text scoreText;
 
     // Start is called before the first frame update
     void Start()
@@ -41,14 +43,20 @@ public class GalleryManager : MonoBehaviour
             }
         }
 
-        paintings = new List<GameObject>();
+        paintings = new List<Transform>();
+        stackLocs = getStackLocations(paintingTextures.Count);
         for (int i = 0; i < paintingTextures.Count; i++)
         {
-            GameObject displayObject = Instantiate(galleryDisplayPrefab);
-            displayObject.transform.position = new Vector3(stackLoc.position.x, stackLoc.position.y + (0.25f * i), stackLoc.position.z);
-            displayObject.transform.rotation = stackLoc.rotation;
+            Transform displayObject = Instantiate(galleryDisplayPrefab).transform;
+            displayObject.position = stackLocs[i];
+            displayObject.rotation = stackLocStart.rotation;
 
-            RawImage display = displayObject.transform.GetChild(1).GetChild(0).gameObject.GetComponent<RawImage>();
+            Vector2 aspectRatio = new Vector2(paintingTextures[i].width, paintingTextures[i].height);
+            aspectRatio.Normalize();
+            aspectRatio *= 5;
+            displayObject.localScale = new Vector3(aspectRatio.x, aspectRatio.y, displayObject.localScale.z);
+
+            RawImage display = displayObject.GetChild(1).GetChild(0).gameObject.GetComponent<RawImage>();
             display.texture = paintingTextures[i];
 
             paintings.Add(displayObject);
@@ -57,6 +65,21 @@ public class GalleryManager : MonoBehaviour
         //displays first painting
         paintings[0].transform.position = displayLoc.position;
         paintings[0].transform.rotation = displayLoc.rotation;
+
+        scoreText.text = "Score: " + GameManager.score;
+
+        prevButton.interactable = false;
+    }
+
+    private List<Vector3> getStackLocations(int n)
+    {
+        List<Vector3> stackLocations = new List<Vector3>();
+        for (int i = 0; i < n; i++)
+        {
+            Vector3 loc = stackLocStart.position + new Vector3(0, 0.25f * i, 0);
+            stackLocations.Add(loc);
+        }
+        return stackLocations;
     }
 
     public void NextPainting()
@@ -64,11 +87,11 @@ public class GalleryManager : MonoBehaviour
         if (displayIndex < paintings.Count - 1)
         {
             //moves currently displayed painting back to stack
-            StartCoroutine(MovePainting(paintings[displayIndex].transform, stackLoc.position + new Vector3(0, 0.25f * displayIndex, 0), stackLoc.rotation, moveSpeed));
+            StartCoroutine(MovePainting(paintings[displayIndex], stackLocs[displayIndex], stackLocStart.rotation, moveSpeed));
             displayIndex++;
 
             //moves next painting from stack to display
-            StartCoroutine(MovePainting(paintings[displayIndex].transform, displayLoc.position, displayLoc.rotation, moveSpeed));
+            StartCoroutine(MovePainting(paintings[displayIndex], displayLoc.position, displayLoc.rotation, moveSpeed));
         }
     }
 
@@ -77,11 +100,11 @@ public class GalleryManager : MonoBehaviour
         if (displayIndex > 0)
         {
             //moves currently displayed painting back to stack
-            StartCoroutine(MovePainting(paintings[displayIndex].transform, stackLoc.position + new Vector3(0, 0.25f * displayIndex, 0), stackLoc.rotation, moveSpeed));
+            StartCoroutine(MovePainting(paintings[displayIndex], stackLocs[displayIndex], stackLocStart.rotation, moveSpeed));
             displayIndex--;
 
             //moves next painting from stack to display
-            StartCoroutine(MovePainting(paintings[displayIndex].transform, displayLoc.position, displayLoc.rotation, moveSpeed));
+            StartCoroutine(MovePainting(paintings[displayIndex], displayLoc.position, displayLoc.rotation, moveSpeed));
         }
     }
 
@@ -111,7 +134,13 @@ public class GalleryManager : MonoBehaviour
             yield return new WaitForSeconds(0.02f);
         }
 
-        nextButton.interactable = true;
-        prevButton.interactable = true;
+        if (displayIndex < paintings.Count - 1)
+        {
+            nextButton.interactable = true;
+        }
+        if (displayIndex > 0)
+        {
+            prevButton.interactable = true;
+        }
     }
 }
