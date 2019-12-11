@@ -5,6 +5,6 @@ using UnityEngine.UI;
 
 public static class GameManager
 {
-    public static Sprite referencePaintingToLoad;
+    public static LevelInfo levelToLoad;
     public static int score;
 }

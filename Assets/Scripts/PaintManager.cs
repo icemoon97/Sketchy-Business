@@ -26,6 +26,8 @@ public class PaintManager : MonoBehaviour {
 
     private Vector3 prevMousePosition;
 
+    public LevelInfo defaultLevel;
+
     public enum BrushStyle
     {
         SquareBrush,
@@ -37,9 +39,33 @@ public class PaintManager : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        referencePainting.sprite = GameManager.referencePaintingToLoad;
+        if (GameManager.levelToLoad == null)
+        {
+            referencePainting.sprite = defaultLevel.referencePainting;
+        }
+        else
+        {
+            referencePainting.sprite = GameManager.levelToLoad.referencePainting;
+        }
 
-        canvas = new Texture2D((int)image.rectTransform.rect.width, (int)image.rectTransform.rect.height); 
+        int maxWidth = 300; //max size that canvas can be
+        int maxHeight = 410;
+
+        Vector2 aspectRatio = new Vector2(referencePainting.sprite.texture.width, referencePainting.sprite.texture.height);
+        aspectRatio.Normalize();
+        aspectRatio *= 1 / Mathf.Min(aspectRatio.x, aspectRatio.y);
+        if (aspectRatio.y / aspectRatio.x > maxHeight * maxWidth)
+        {
+            aspectRatio *= maxHeight;
+        }
+        else
+        {
+            aspectRatio *= maxWidth;
+        }
+        image.rectTransform.sizeDelta = aspectRatio;
+        referencePainting.rectTransform.sizeDelta = aspectRatio;
+
+        canvas = new Texture2D((int)image.rectTransform.rect.width, (int)image.rectTransform.rect.height);
 
         image.texture = canvas;
 
@@ -63,6 +89,15 @@ public class PaintManager : MonoBehaviour {
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.Z) && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
+        {
+            Undo();
+        }
+        if (Input.GetKeyDown(KeyCode.Y) && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
+        {
+            Redo();
+        }
+
         prevMousePosition = mousePos;
     }
 
@@ -72,9 +107,9 @@ public class PaintManager : MonoBehaviour {
         Rect canvasBounds = new Rect(0, 0, canvas.width, canvas.height);
         if (brushStyle == BrushStyle.SquareBrush)
         {
-            for (int x = -brushSize / 2; x < brushSize / 2; x++)
+            for (float x = -brushSize / 2f; x < brushSize / 2f; x++)
             {
-                for (int y = -brushSize / 2; y < brushSize / 2; y++)
+                for (float y = -brushSize / 2f; y < brushSize / 2f; y++)
                 {
                     Vector2 pixel = new Vector2(Mathf.RoundToInt(pos.x + x), Mathf.RoundToInt(pos.y + y));
                     if (canvasBounds.Contains(pixel)) //makes sure pixels are within bounds
@@ -86,9 +121,9 @@ public class PaintManager : MonoBehaviour {
         }
         else if (brushStyle == BrushStyle.CircularBrush)
         {
-            for (int x = -brushSize / 2; x < brushSize / 2; x++)
+            for (float x = -brushSize / 2f; x < brushSize / 2f; x++)
             {
-                for (int y = -brushSize / 2; y < brushSize / 2; y++)
+                for (float y = -brushSize / 2f; y < brushSize / 2f; y++)
                 {
                     Vector2 pixel = new Vector2(Mathf.RoundToInt(pos.x + x), Mathf.RoundToInt(pos.y + y));
                     if (canvasBounds.Contains(pixel) && Vector2.Distance(pos, pixel) < brushSize / 2) //makes sure pixels are within bounds
@@ -100,7 +135,7 @@ public class PaintManager : MonoBehaviour {
         }
         else if (brushStyle == BrushStyle.SprayCan)
         {
-            for (int i  = 0; i < sprayCanDensity * (brushSize / 10); i++)
+            for (float i  = 0; i < sprayCanDensity * (brushSize / 10f); i++)
             {
                 Vector2 rand = UnityEngine.Random.insideUnitCircle * (brushSize / 2);
                 Vector2Int pixel = new Vector2Int(Mathf.RoundToInt(pos.x + rand.x), Mathf.RoundToInt(pos.y + rand.y));
@@ -157,6 +192,8 @@ public class PaintManager : MonoBehaviour {
                 }
             }
         }
+
+        SaveState();
     }
 
     //returns relative mouse position within canvas texture

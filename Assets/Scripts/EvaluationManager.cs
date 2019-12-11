@@ -7,8 +7,14 @@ using UnityEngine.SceneManagement;
 public class EvaluationManager : MonoBehaviour
 {
     public RawImage canvasDisplay;
+    public RawImage paintScreenCanvas; //needs reference so that it can scale the canvasDisplay properly
 
     public Text scoreText;
+
+    private void Start()
+    {
+        canvasDisplay.rectTransform.sizeDelta = paintScreenCanvas.rectTransform.sizeDelta;
+    }
 
     public void Evaluate(Texture2D painting)
     {

@@ -1,15 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
     public LevelInfo[] levels;
 
+    public Button[] levelSelectButtons;
+
+    private void Start()
+    {
+
+    }
+
     public void LoadLevel(int index)
     {
-        GameManager.referencePaintingToLoad = levels[index].referencePainting;
+        GameManager.levelToLoad = levels[index];
         SceneManager.LoadScene("Painting");
     }
     
