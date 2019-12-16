@@ -12,11 +12,14 @@ public class PaintManager : MonoBehaviour {
 
     public Image referencePainting;
 
-    public RawImage image;
+    public RawImage image; //displays canvas
 
     private Texture2D canvas;
     private List<Texture2D> history; //list of all previous states of the canvas
     private int historyIndex; //current place in history (tracks user if they undo/redo multiple times)
+
+    public Transform colorPanel;
+    public GameObject colorButtonPrefab;
 
     public BrushStyle brushStyle;
     public int brushSize;
@@ -41,29 +44,12 @@ public class PaintManager : MonoBehaviour {
     {
         if (GameManager.levelToLoad == null)
         {
-            referencePainting.sprite = defaultLevel.referencePainting;
+            LoadLevel(defaultLevel);
         }
         else
         {
-            referencePainting.sprite = GameManager.levelToLoad.referencePainting;
+            LoadLevel(GameManager.levelToLoad);
         }
-
-        int maxWidth = 300; //max size that canvas can be
-        int maxHeight = 410;
-
-        Vector2 aspectRatio = new Vector2(referencePainting.sprite.texture.width, referencePainting.sprite.texture.height);
-        aspectRatio.Normalize();
-        aspectRatio *= 1 / Mathf.Min(aspectRatio.x, aspectRatio.y);
-        if (aspectRatio.y / aspectRatio.x > maxHeight * maxWidth)
-        {
-            aspectRatio *= maxHeight;
-        }
-        else
-        {
-            aspectRatio *= maxWidth;
-        }
-        image.rectTransform.sizeDelta = aspectRatio;
-        referencePainting.rectTransform.sizeDelta = aspectRatio;
 
         canvas = new Texture2D((int)image.rectTransform.rect.width, (int)image.rectTransform.rect.height);
 
@@ -101,6 +87,35 @@ public class PaintManager : MonoBehaviour {
         prevMousePosition = mousePos;
     }
 
+    private void LoadLevel(LevelInfo level)
+    {
+        referencePainting.sprite = level.referencePainting;
+
+        int maxWidth = 300; //max size that canvas can be
+        int maxHeight = 410;
+
+        Vector2 aspectRatio = new Vector2(referencePainting.sprite.texture.width, referencePainting.sprite.texture.height);
+        aspectRatio.Normalize();
+        aspectRatio *= 1 / Mathf.Min(aspectRatio.x, aspectRatio.y);
+        if (aspectRatio.y / aspectRatio.x > maxHeight * maxWidth)
+        {
+            aspectRatio *= maxHeight;
+        }
+        else
+        {
+            aspectRatio *= maxWidth;
+        }
+        image.rectTransform.sizeDelta = aspectRatio;
+        referencePainting.rectTransform.sizeDelta = aspectRatio;
+
+        foreach (Color c in level.colorPalette)
+        {
+            GameObject colorButton = Instantiate(colorButtonPrefab, colorPanel);
+            colorButton.GetComponent<Image>().color = c;
+            colorButton.GetComponent<Button>().onClick.AddListener( delegate { SetColor(colorButton); } );
+        }
+    }
+
     //draws at given position with current color, size and brush style
     private void Draw(Vector3 pos)
     {
@@ -111,10 +126,10 @@ public class PaintManager : MonoBehaviour {
             {
                 for (float y = -brushSize / 2f; y < brushSize / 2f; y++)
                 {
-                    Vector2 pixel = new Vector2(Mathf.RoundToInt(pos.x + x), Mathf.RoundToInt(pos.y + y));
+                    Vector2Int pixel = new Vector2Int((int)(pos.x + x), (int)(pos.y + y));
                     if (canvasBounds.Contains(pixel)) //makes sure pixels are within bounds
                     {
-                        canvas.SetPixel((int)pixel.x, (int)pixel.y, brushColor);
+                        canvas.SetPixel(pixel.x, pixel.y, brushColor);
                     }
                 }
             }
@@ -125,10 +140,10 @@ public class PaintManager : MonoBehaviour {
             {
                 for (float y = -brushSize / 2f; y < brushSize / 2f; y++)
                 {
-                    Vector2 pixel = new Vector2(Mathf.RoundToInt(pos.x + x), Mathf.RoundToInt(pos.y + y));
+                    Vector2Int pixel = new Vector2Int((int)(pos.x + x), (int)(pos.y + y));
                     if (canvasBounds.Contains(pixel) && Vector2.Distance(pos, pixel) < brushSize / 2) //makes sure pixels are within bounds
                     {
-                        canvas.SetPixel((int)pixel.x, (int)pixel.y, brushColor);
+                        canvas.SetPixel(pixel.x, pixel.y, brushColor);
                     }
                 }
             }

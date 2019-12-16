@@ -8,8 +8,6 @@ public class LevelManager : MonoBehaviour
 {
     public LevelInfo[] levels;
 
-    public Button[] levelSelectButtons;
-
     private void Start()
     {
 

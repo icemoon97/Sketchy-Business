@@ -5,4 +5,5 @@ using UnityEngine;
 public class LevelInfo
 {
     public Sprite referencePainting;
+    public Color[] colorPalette;
 }
