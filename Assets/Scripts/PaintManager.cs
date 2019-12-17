@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class PaintManager : MonoBehaviour {
 
+    [Header("Unity Setup")]
     public GameObject paintingPanel;
     public GameObject evalPanel;
     public EvaluationManager evalManager;
@@ -21,6 +22,9 @@ public class PaintManager : MonoBehaviour {
     public Transform colorPanel;
     public GameObject colorButtonPrefab;
 
+    private LevelTimer timer;
+
+    [Header("Paint Settings")]
     public BrushStyle brushStyle;
     public int brushSize;
     public Color brushColor;
@@ -29,6 +33,7 @@ public class PaintManager : MonoBehaviour {
 
     private Vector3 prevMousePosition;
 
+    [Header("Default Level (for testing)")]
     public LevelInfo defaultLevel;
 
     public enum BrushStyle
@@ -37,6 +42,11 @@ public class PaintManager : MonoBehaviour {
         CircularBrush,
         SprayCan,
         PaintBucket
+    }
+
+    void Awake()
+    {
+        timer = GetComponent<LevelTimer>();
     }
 
 	// Use this for initialization
@@ -112,7 +122,19 @@ public class PaintManager : MonoBehaviour {
         {
             GameObject colorButton = Instantiate(colorButtonPrefab, colorPanel);
             colorButton.GetComponent<Image>().color = c;
-            colorButton.GetComponent<Button>().onClick.AddListener( delegate { SetColor(colorButton); } );
+            colorButton.GetComponent<Button>().onClick.AddListener( delegate { SetColor(c); } );
+        }
+
+        brushColor = level.colorPalette[0];
+        
+        if (level.timeLimit > 0)
+        {
+            timer.time = level.timeLimit;
+        }
+        else
+        {
+            timer.gameObject.SetActive(false);
+            timer.timerDisplay.gameObject.SetActive(false);
         }
     }
 
@@ -324,6 +346,9 @@ public class PaintManager : MonoBehaviour {
 
     public void SubmitPainting()
     {
+        SoundManager sound = GameObject.Find("Sound Manager").GetComponent<SoundManager>();
+        sound.PlaySound();
+
         SaveImage();
         paintingPanel.SetActive(false);
         evalPanel.SetActive(true);

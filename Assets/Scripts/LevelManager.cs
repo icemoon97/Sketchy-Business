@@ -16,7 +16,9 @@ public class LevelManager : MonoBehaviour
     public void LoadLevel(int index)
     {
         GameManager.levelToLoad = levels[index];
+
         SceneManager.LoadScene("Painting");
+            
     }
     
     public void ExitGame()
