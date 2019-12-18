@@ -94,6 +94,12 @@ public class PaintManager : MonoBehaviour {
             Redo();
         }
 
+        if (timer.time <= 0 && timer.enabled)
+        {
+            SubmitPainting();
+            timer.enabled = false;
+        }
+
         prevMousePosition = mousePos;
     }
 
@@ -133,7 +139,7 @@ public class PaintManager : MonoBehaviour {
         }
         else
         {
-            timer.gameObject.SetActive(false);
+            timer.enabled = false;
             timer.timerDisplay.gameObject.SetActive(false);
         }
     }
