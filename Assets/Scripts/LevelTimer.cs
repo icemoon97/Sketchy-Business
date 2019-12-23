@@ -30,21 +30,23 @@ public class LevelTimer : MonoBehaviour
         int seconds = (int)time % 60;
         int minutes = (int)time / 60;
 
-        if (seconds < 10 && minutes < 10)
+        string secondsString = seconds.ToString();
+        if (seconds < 10)
         {
-            timerDisplay.text = ("Time Remaining: 0" + minutes + ":0" + seconds);
+            secondsString = "0" + secondsString;
         }
-        else if (minutes < 10)
+            
+        string minutesString = minutes.ToString();
+        if (minutes < 10)
         {
-            timerDisplay.text = ("Time Remaining: 0" + minutes + ":" + seconds);
-        }
-        else if (seconds < 10)
+            minutesString = "0" + minutesString;
+        }   
+
+        timerDisplay.text = "Time Remaining: " + minutesString + ":" + secondsString;
+
+        if (time < 10)
         {
-            timerDisplay.text = ("Time Remaining: " + minutes + ":0" + seconds);
-        }
-        else
-        {
-            timerDisplay.text = ("Time Remaining: " + minutes + ":" + seconds);
+            timerDisplay.color = Color.red;
         }
     }
 }

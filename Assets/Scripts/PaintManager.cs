@@ -221,6 +221,8 @@ public class PaintManager : MonoBehaviour {
             new Vector2Int(0, -1)
         };
 
+        Rect canvasBounds = new Rect(0, 0, canvas.width, canvas.height);
+
         while (queue.Count > 0)
         {
             Vector2Int node = queue[0];
@@ -228,10 +230,11 @@ public class PaintManager : MonoBehaviour {
 
             foreach (Vector2Int vector in vectors)
             {
-                if (canvas.GetPixel(node.x + vector.x, node.y + vector.y) == targetColor)
+                Vector2Int pixel = new Vector2Int(node.x + vector.x, node.y + vector.y);
+                if (canvasBounds.Contains(pixel) && canvas.GetPixel(pixel.x, pixel.y) == targetColor)
                 {
-                    canvas.SetPixel(node.x + vector.x, node.y + vector.y, brushColor);
-                    queue.Add(new Vector2Int(node.x + vector.x, node.y + vector.y));
+                    canvas.SetPixel(pixel.x, pixel.y, brushColor);
+                    queue.Add(pixel);
                 }
             }
         }
