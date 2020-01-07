@@ -61,6 +61,8 @@ public class PaintManager : MonoBehaviour {
             LoadLevel(GameManager.levelToLoad);
         }
 
+        evalPanel.SetActive(false);
+
         canvas = new Texture2D((int)image.rectTransform.rect.width, (int)image.rectTransform.rect.height);
 
         image.texture = canvas;
@@ -358,9 +360,9 @@ public class PaintManager : MonoBehaviour {
         SoundManager sound = GameObject.Find("Sound Manager").GetComponent<SoundManager>();
         sound.PlaySound();
 
-        SaveImage();
+        //SaveImage();
         paintingPanel.SetActive(false);
         evalPanel.SetActive(true);
-        evalManager.Evaluate(canvas);
+        evalManager.Evaluate((Texture2D)referencePainting.mainTexture);
     }
 }
