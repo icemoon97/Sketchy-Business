@@ -6,39 +6,68 @@ using UnityEngine.SceneManagement;
 
 public class EvaluationManager : MonoBehaviour
 {
+    public PaintManager paintManager;
+
     public RawImage canvasDisplay;
-    public RawImage paintScreenCanvas; //needs reference so that it can scale the canvasDisplay properly
 
     public Text scoreText;
 
-    public RawImage[] testing;
+    public RawImage[] referencesTesting;
+    public RawImage[] userPaintingTesting;
+    public RawImage[] differenceTesting;
 
     private void Start()
     {
-        canvasDisplay.rectTransform.sizeDelta = paintScreenCanvas.rectTransform.sizeDelta;
+        canvasDisplay.rectTransform.sizeDelta = paintManager.image.rectTransform.sizeDelta;
     }
 
     public void Evaluate(Texture2D painting)
     {
-        canvasDisplay.texture = painting;
+        Texture2D simplified = SimplifyColors((Texture2D)paintManager.referencePainting.mainTexture, GameManager.levelToLoad.colorPalette);
 
-        HashSet<Color> colors = new HashSet<Color>();
-        for (int x = 0; x < painting.width; x++)
+        canvasDisplay.texture = simplified;     
+
+        for (int i = 0; i < userPaintingTesting.Length; i++)
         {
-            for (int y = 0; y < painting.height; y++)
-            {
-                Color color = painting.GetPixel(x, y);
-                colors.Add(color);
-            }
+            userPaintingTesting[i].texture = Pixelate(painting, Mathf.Pow(2, i + 1));
         }
 
-        scoreText.text = "Score: " + colors.Count;
-
-        GameManager.score += colors.Count;
-
-        for (int i = 0; i < testing.Length; i++)
+        for (int i = 0; i < referencesTesting.Length; i++)
         {
-            testing[i].texture = Pixelate(painting, Mathf.Pow(2, i + 1));
+            referencesTesting[i].texture = Pixelate(simplified, Mathf.Pow(2, i + 1));
+        }
+
+        for (int i = 0; i < differenceTesting.Length; i++)
+        {
+            Texture2D tex = new Texture2D(painting.width, painting.height);
+
+            float[,] differences = new float[tex.width,tex.height];
+
+            for (int x = 0; x < tex.width; x++)
+            {
+                for (int y = 0; y < tex.height; y++)
+                {
+                    Color a = ((Texture2D)userPaintingTesting[i].texture).GetPixel(x, y);
+                    Color b = ((Texture2D)referencesTesting[i].texture).GetPixel(x, y);
+
+                    differences[x,y] = LABColor.Distance(LABColor.FromColor(a), LABColor.FromColor(b));
+                }
+            }
+
+            float maxDiff = LABColor.Distance(LABColor.FromColor(Color.black), LABColor.FromColor(Color.white));
+
+            for (int x = 0; x < tex.width; x++)
+            {
+                for (int y = 0; y < tex.height; y++)
+                {
+                    differences[x,y] /= maxDiff;
+                    tex.SetPixel(x, y, new Color(differences[x,y], 0, 0));
+                }
+            }
+
+            tex.Apply();
+
+            differenceTesting[i].texture = tex;
         }
     }
 
@@ -75,6 +104,46 @@ public class EvaluationManager : MonoBehaviour
                 }
           
 
+            }
+        }
+
+        final.Apply();
+        return final;
+    }
+
+    //returns a new texture with all pixels changed to the closest color from the given palette
+    private Texture2D SimplifyColors(Texture2D input, Color[] palette)
+    {
+        Texture2D final = new Texture2D(input.width, input.height);
+
+        LABColor[] colors = new LABColor[palette.Length];
+        for (int i = 0; i < palette.Length; i++)
+        {
+            colors[i] = LABColor.FromColor(palette[i]);
+        }
+
+        for (int x = 0; x < input.width; x++)
+        {
+            for (int y = 0; y < input.height; y++)
+            {
+                LABColor pixel = LABColor.FromColor(input.GetPixel(x, y));
+
+                float nearestDist = 999999;
+                LABColor nearest = colors[0];
+
+                foreach (LABColor color in colors)
+                {
+                    float dist = LABColor.Distance(pixel, color);
+                    if (dist < nearestDist)
+                    {
+                        nearestDist = dist;
+                        nearest = color;
+                    }
+                }
+
+                Color toSet = LABColor.ToColor(nearest);
+
+                final.SetPixel(x, y, toSet);
             }
         }
 

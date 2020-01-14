@@ -54,16 +54,15 @@ public class PaintManager : MonoBehaviour {
     {
         if (GameManager.levelToLoad == null)
         {
-            LoadLevel(defaultLevel);
-        }
-        else
-        {
-            LoadLevel(GameManager.levelToLoad);
+            GameManager.levelToLoad = defaultLevel;    
         }
 
+        LoadLevel(GameManager.levelToLoad);
+
+        paintingPanel.SetActive(true);
         evalPanel.SetActive(false);
 
-        canvas = new Texture2D((int)image.rectTransform.rect.width, (int)image.rectTransform.rect.height);
+        canvas = new Texture2D((int)referencePainting.mainTexture.width, (int)referencePainting.mainTexture.height);
 
         image.texture = canvas;
 
@@ -252,7 +251,13 @@ public class PaintManager : MonoBehaviour {
         Vector3[] corners = new Vector3[4];
         image.rectTransform.GetWorldCorners(corners);
 
-        return mousePos - corners[0];
+        Vector2 texSize = new Vector2(canvas.width, canvas.height);
+        Vector2 imageSize = new Vector2(image.rectTransform.rect.width, image.rectTransform.rect.height);
+        Vector2 ratio = texSize / imageSize;
+
+        Vector3 final = (mousePos - corners[0]) * ratio;
+
+        return new Vector3((int)final.x, (int)final.y, 0);
     }
 
     public void SetBrushSize(int size)
@@ -363,6 +368,6 @@ public class PaintManager : MonoBehaviour {
         //SaveImage();
         paintingPanel.SetActive(false);
         evalPanel.SetActive(true);
-        evalManager.Evaluate((Texture2D)referencePainting.mainTexture);
+        evalManager.Evaluate(canvas);
     }
 }
