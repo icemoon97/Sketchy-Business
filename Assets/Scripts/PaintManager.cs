@@ -84,6 +84,8 @@ public class PaintManager : MonoBehaviour {
             {
                 Draw(Vector3.Lerp(mousePos, prevMousePosition, i));
             }
+
+            canvas.Apply();
         }
 
         if (Input.GetKeyDown(KeyCode.Z) && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
@@ -181,7 +183,7 @@ public class PaintManager : MonoBehaviour {
         {
             for (float i  = 0; i < sprayCanDensity * (brushSize / 10f); i++)
             {
-                Vector2 rand = UnityEngine.Random.insideUnitCircle * (brushSize / 2);
+                Vector2 rand = UnityEngine.Random.insideUnitCircle * (brushSize / 2f);
                 Vector2Int pixel = new Vector2Int(Mathf.RoundToInt(pos.x + rand.x), Mathf.RoundToInt(pos.y + rand.y));
                 if (canvasBounds.Contains(pixel))
                 {
@@ -189,8 +191,6 @@ public class PaintManager : MonoBehaviour {
                 }
             }
         }
-
-        canvas.Apply();
     }
 
     //paint bucket function, which is called from a click event from the canvas. 

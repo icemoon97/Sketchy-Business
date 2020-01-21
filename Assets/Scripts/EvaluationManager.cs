@@ -8,24 +8,27 @@ public class EvaluationManager : MonoBehaviour
 {
     public PaintManager paintManager;
 
-    public RawImage canvasDisplay;
+    public RawImage referenceDisplay;
+    public RawImage userCanvasDisplay;
 
     public Text scoreText;
 
     public RawImage[] referencesTesting;
     public RawImage[] userPaintingTesting;
     public RawImage[] differenceTesting;
+    public Text[] differenceAverages;
 
     private void Start()
     {
-        canvasDisplay.rectTransform.sizeDelta = paintManager.image.rectTransform.sizeDelta;
+        //referenceDisplay.rectTransform.sizeDelta = paintManager.image.rectTransform.sizeDelta;
     }
 
     public void Evaluate(Texture2D painting)
     {
         Texture2D simplified = SimplifyColors((Texture2D)paintManager.referencePainting.mainTexture, GameManager.levelToLoad.colorPalette);
 
-        canvasDisplay.texture = simplified;     
+        referenceDisplay.texture = simplified;
+        userCanvasDisplay.texture = painting;
 
         for (int i = 0; i < userPaintingTesting.Length; i++)
         {
@@ -39,35 +42,20 @@ public class EvaluationManager : MonoBehaviour
 
         for (int i = 0; i < differenceTesting.Length; i++)
         {
-            Texture2D tex = new Texture2D(painting.width, painting.height);
+            Texture2D diffTex = CalcDistances((Texture2D)referencesTesting[i].texture, (Texture2D)userPaintingTesting[i].texture);
+            differenceTesting[i].texture = diffTex;
 
-            float[,] differences = new float[tex.width,tex.height];
-
-            for (int x = 0; x < tex.width; x++)
+            float average = 0;
+            for (int x = 0; x < diffTex.width; x++)
             {
-                for (int y = 0; y < tex.height; y++)
+                for (int y = 0; y < diffTex.height; y++)
                 {
-                    Color a = ((Texture2D)userPaintingTesting[i].texture).GetPixel(x, y);
-                    Color b = ((Texture2D)referencesTesting[i].texture).GetPixel(x, y);
-
-                    differences[x,y] = LABColor.Distance(LABColor.FromColor(a), LABColor.FromColor(b));
+                    average += diffTex.GetPixel(x, y).r;
                 }
             }
+            average /= diffTex.width * diffTex.height;
 
-            float maxDiff = LABColor.Distance(LABColor.FromColor(Color.black), LABColor.FromColor(Color.white));
-
-            for (int x = 0; x < tex.width; x++)
-            {
-                for (int y = 0; y < tex.height; y++)
-                {
-                    differences[x,y] /= maxDiff;
-                    tex.SetPixel(x, y, new Color(differences[x,y], 0, 0));
-                }
-            }
-
-            tex.Apply();
-
-            differenceTesting[i].texture = tex;
+            differenceAverages[i].text = "" + average;
         }
     }
 
@@ -148,6 +136,46 @@ public class EvaluationManager : MonoBehaviour
         }
 
         final.Apply();
+        return final;
+    }
+
+    //returns a new texture, with each pixel being the LABColor distance between the same pixels in the two given textures.
+    //differences are from 0-1, with 0 being the same color and 1 being the distance from black to white
+    private Texture2D CalcDistances(Texture2D a, Texture2D b)
+    {
+        if (a.width != b.width || a.height != b.height)
+        {
+            throw new System.Exception("textures are different sizes");
+        }
+
+        Texture2D final = new Texture2D(a.width, a.height);
+
+        float[,] differences = new float[final.width, final.height];
+
+        for (int x = 0; x < final.width; x++)
+        {
+            for (int y = 0; y < final.height; y++)
+            {
+                Color colorA = a.GetPixel(x, y);
+                Color colorB = b.GetPixel(x, y);
+
+                differences[x, y] = LABColor.Distance(LABColor.FromColor(colorA), LABColor.FromColor(colorB));
+            }
+        }
+
+        float maxDiff = LABColor.Distance(LABColor.FromColor(Color.black), LABColor.FromColor(Color.white));
+
+        for (int x = 0; x < final.width; x++)
+        {
+            for (int y = 0; y < final.height; y++)
+            {
+                differences[x, y] /= maxDiff;
+                final.SetPixel(x, y, new Color(differences[x, y], 0, 0));
+            }
+        }
+
+        final.Apply();
+
         return final;
     }
 
