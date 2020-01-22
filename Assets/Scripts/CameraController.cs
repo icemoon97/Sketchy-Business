@@ -7,6 +7,7 @@ public class CameraController : MonoBehaviour
     public Transform levelSelectCameraPos;
     public Transform galleryCameraPos;
     public Transform mainCameraPos;
+    public Transform settingsCameraPos;
 
     public float moveSpeed = 0.125f;
 
@@ -26,6 +27,12 @@ public class CameraController : MonoBehaviour
     {
         StopAllCoroutines();
         StartCoroutine(Move(mainCameraPos));
+    }
+
+    public void SettingsTransition()
+    {
+        StopAllCoroutines();
+        StartCoroutine(Move(settingsCameraPos));
     }
 
     //IEnumerator makes it a coroutine
