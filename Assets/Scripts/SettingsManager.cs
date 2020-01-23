@@ -1,17 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class SettingsManager : MonoBehaviour
 {
 
-    //sound
+    //sound 
     private AudioSource backgroundAudio;
-    public Toggle musicToggle;
-    public Slider musicVolumeSlider;
+    private Toggle musicToggle;
+    private Slider musicVolumeSlider;
 
+    //prevents duplicate settings manager from being created when going back to the main menu
     public static SettingsManager instance;
     private void Awake()
     {
@@ -22,28 +23,53 @@ public class SettingsManager : MonoBehaviour
         }
         instance = this;
         DontDestroyOnLoad(gameObject);
+
+        //makes it so onSceneLoaded is called properly
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        backgroundAudio = GetComponent<AudioSource>();
+
+        GameManager.music = true;
+        GameManager.musicVol = 0.1f;
     }
 
-    private void Start()
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        backgroundAudio = GetComponent<AudioSource>();
-        UpdateSettings();
+        Debug.Log(scene.name);
+        if (scene.name == "Main Menu")
+        {
+            musicToggle = GameObject.Find("Music Toggle").GetComponent<Toggle>();
+            musicVolumeSlider = GameObject.Find("Music Volume Slider").GetComponent<Slider>();
+
+            UpdateUI();
+        }      
     }
 
     //called when any settings UI (toggles, sliders, etc) are modified
     public void UpdateSettings()
     {
-        musicVolumeSlider.gameObject.SetActive(musicToggle.isOn);
+        GameManager.music = musicToggle.isOn;
+        GameManager.musicVol = musicVolumeSlider.value;
 
-        if (musicToggle.isOn)
+        if (GameManager.music)
         {
             backgroundAudio.UnPause();
-
-            backgroundAudio.volume = musicVolumeSlider.value;
+            backgroundAudio.volume = GameManager.musicVol;
         }
         else
         {
             backgroundAudio.Pause();
         }
+
+        UpdateUI();
+    }
+
+    //updates settings page UI
+    private void UpdateUI()
+    {
+        musicToggle.isOn = GameManager.music;
+
+        musicVolumeSlider.gameObject.SetActive(GameManager.music);
+        musicVolumeSlider.value = GameManager.musicVol;
     }
 }
