@@ -57,6 +57,8 @@ public class EvaluationManager : MonoBehaviour
 
             differenceAverages[i].text = "" + average;
         }
+
+        GameManager.score += 1;
     }
 
     private Texture2D Pixelate(Texture2D input, float factor)

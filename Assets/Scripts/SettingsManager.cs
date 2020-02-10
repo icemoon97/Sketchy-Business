@@ -28,18 +28,22 @@ public class SettingsManager : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
 
         backgroundAudio = GetComponent<AudioSource>();
-
-        GameManager.music = true;
-        GameManager.musicVol = 0.1f;
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log(scene.name);
         if (scene.name == "Main Menu")
         {
             musicToggle = GameObject.Find("Music Toggle").GetComponent<Toggle>();
             musicVolumeSlider = GameObject.Find("Music Volume Slider").GetComponent<Slider>();
+
+            musicToggle.onValueChanged.AddListener(delegate {
+                UpdateSettings();
+            });
+            musicVolumeSlider.onValueChanged.AddListener(delegate {
+                UpdateSettings();
+            });
+
 
             UpdateUI();
         }      
