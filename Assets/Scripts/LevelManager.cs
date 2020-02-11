@@ -16,11 +16,25 @@ public class LevelManager : MonoBehaviour
         string destination = Application.dataPath + "/gamedata.dat";
         if (!File.Exists(destination))
         {
-            File.Create(destination);
+            FileStream file = File.Create(destination);
+            file.Close(); //needed because I am using file.writealltext() later and leaving the file open would cause a sharing violation
+
+            GameManager.levelScore = new List<int>(); //needs to be a list and not an array because arrays are not serializable by JsonUtility
+            for (int i = 0; i < levels.Length; i++)
+            {
+                GameManager.levelScore.Add(0); 
+            }
+
+            GameManager.score = 0;
+            GameManager.music = true;
+            GameManager.musicVol = 0.2f;
+        }
+
+        if (GameManager.levelScore != null)
+        {
             SaveGame();
         }
-   
-        LoadGame();
+        LoadGame(); 
     }
 
     private void Start()
@@ -32,6 +46,7 @@ public class LevelManager : MonoBehaviour
     public void LoadLevel(int index)
     {
         GameManager.levelToLoad = levels[index];
+        GameManager.currentLevelIndex = index;
 
         SceneManager.LoadScene("Painting");
             
@@ -40,7 +55,7 @@ public class LevelManager : MonoBehaviour
     //saves the current gamedata to a file
     public void SaveGame()
     {
-        GameData data = new GameData(GameManager.score, GameManager.music, GameManager.musicVol);
+        GameData data = new GameData(GameManager.score, GameManager.levelScore, GameManager.music, GameManager.musicVol);
         string json = JsonUtility.ToJson(data);
         Debug.Log(json);
 
@@ -75,6 +90,7 @@ public class LevelManager : MonoBehaviour
         GameData data = JsonUtility.FromJson<GameData>(contents);
 
         GameManager.score = data.score;
+        GameManager.levelScore = data.levelScore;
         GameManager.music = data.music;
         GameManager.musicVol = data.musicVol;
     }

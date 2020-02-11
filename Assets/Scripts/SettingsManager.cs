@@ -57,13 +57,13 @@ public class SettingsManager : MonoBehaviour
 
         if (GameManager.music)
         {
-            backgroundAudio.UnPause();
-            backgroundAudio.volume = GameManager.musicVol;
+            backgroundAudio.UnPause(); 
         }
         else
         {
             backgroundAudio.Pause();
         }
+        backgroundAudio.volume = GameManager.musicVol;
 
         UpdateUI();
     }

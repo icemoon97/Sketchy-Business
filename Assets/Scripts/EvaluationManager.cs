@@ -40,6 +40,8 @@ public class EvaluationManager : MonoBehaviour
             referencesTesting[i].texture = Pixelate(simplified, Mathf.Pow(2, i + 1));
         }
 
+        float totalScore = 0;
+
         for (int i = 0; i < differenceTesting.Length; i++)
         {
             Texture2D diffTex = CalcDistances((Texture2D)referencesTesting[i].texture, (Texture2D)userPaintingTesting[i].texture);
@@ -56,9 +58,16 @@ public class EvaluationManager : MonoBehaviour
             average /= diffTex.width * diffTex.height;
 
             differenceAverages[i].text = "" + average;
+
+            totalScore += average;
         }
 
-        GameManager.score += 1;
+        totalScore = Mathf.Round((5 - totalScore) * 100);
+
+        scoreText.text = totalScore + "";
+
+        GameManager.score += (int)totalScore;
+        GameManager.levelScore[GameManager.currentLevelIndex] = (int)totalScore;
     }
 
     private Texture2D Pixelate(Texture2D input, float factor)
