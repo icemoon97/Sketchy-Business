@@ -11,6 +11,9 @@ public class LevelManager : MonoBehaviour
 {
     public LevelInfo[] levels;
 
+    public GameObject[] levelButtons;
+    public Sprite lockImage;
+
     private void Awake()
     {
         string destination = Application.dataPath + "/gamedata.dat";
@@ -22,7 +25,7 @@ public class LevelManager : MonoBehaviour
             GameManager.levelScore = new List<int>(); //needs to be a list and not an array because arrays are not serializable by JsonUtility
             for (int i = 0; i < levels.Length; i++)
             {
-                GameManager.levelScore.Add(0); 
+                GameManager.levelScore.Add(-1); 
             }
 
             GameManager.score = 0;
@@ -30,7 +33,7 @@ public class LevelManager : MonoBehaviour
             GameManager.musicVol = 0.2f;
         }
 
-        if (GameManager.levelScore != null)
+        if (GameManager.levelScore != null) //so that game is saved automatically when returning to main menu
         {
             SaveGame();
         }
@@ -39,17 +42,11 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        
-    }
-
-    //loads the level at the given index in the levels array
-    public void LoadLevel(int index)
-    {
-        GameManager.levelToLoad = levels[index];
-        GameManager.currentLevelIndex = index;
-
-        SceneManager.LoadScene("Painting");
-            
+        for (int i = GameManager.levelScore.IndexOf(-1) + 1; i < levelButtons.Length; i++) //loops through locked levels
+        {
+            levelButtons[i].transform.GetChild(1).GetComponent<Image>().sprite = lockImage;
+            levelButtons[i].GetComponent<Button>().interactable = false;
+        }
     }
 
     //saves the current gamedata to a file
@@ -85,8 +82,6 @@ public class LevelManager : MonoBehaviour
         }
         file.Close();
 
-        Debug.Log(contents);
-
         GameData data = JsonUtility.FromJson<GameData>(contents);
 
         GameManager.score = data.score;
@@ -100,4 +95,16 @@ public class LevelManager : MonoBehaviour
         SaveGame();
         Application.Quit();
     }
+
+    //loads the level at the given index in the levels array
+    public void LoadLevel(int index)
+    {
+        GameManager.levelToLoad = levels[index];
+        GameManager.currentLevelIndex = index;
+
+        SceneManager.LoadScene("Painting");
+
+    }
+
+
 }
