@@ -11,7 +11,7 @@ public class PaintManager : MonoBehaviour {
     public GameObject evalPanel;
     public EvaluationManager evalManager;
 
-    public Image referencePainting;
+    public Image referencePainting; //image user is trying to replicate
 
     public RawImage image; //displays canvas
 
@@ -23,6 +23,10 @@ public class PaintManager : MonoBehaviour {
     public GameObject colorButtonPrefab;
 
     private LevelTimer timer;
+
+    public Image selectionHighlightPaintTools;
+    public Image selectionHighlightBrushSize;
+    public Image selectionHighlightColor;
 
     [Header("Paint Settings")]
     public BrushStyle brushStyle;
@@ -132,6 +136,7 @@ public class PaintManager : MonoBehaviour {
             GameObject colorButton = Instantiate(colorButtonPrefab, colorPanel);
             colorButton.GetComponent<Image>().color = c;
             colorButton.GetComponent<Button>().onClick.AddListener( delegate { SetColor(c); } );
+            colorButton.GetComponent<Button>().onClick.AddListener( delegate { moveSelectionHighlightColor(colorButton); } );
         }
 
         brushColor = level.colorPalette[0];
@@ -275,12 +280,24 @@ public class PaintManager : MonoBehaviour {
         brushStyle = (BrushStyle)style;
     }
 
-    //gets passed in a button that was just clicked, changed color to color of button
-    public void SetColor(GameObject button)
+    //moves selection highlight to the selected button
+    //probably doesn't have to be 3 different methods but this seemed easiest
+    public void moveSelectionHighlightPaintTools(GameObject justSelected)
     {
-        brushColor = button.GetComponent<Image>().color;
+        selectionHighlightPaintTools.rectTransform.anchoredPosition = justSelected.GetComponent<RectTransform>().anchoredPosition;
     }
 
+    public void moveSelectionHighlightBrushSize(GameObject justSelected)
+    {
+        selectionHighlightBrushSize.rectTransform.anchoredPosition = justSelected.GetComponent<RectTransform>().anchoredPosition;
+    }
+
+    public void moveSelectionHighlightColor(GameObject justSelected)
+    {
+        selectionHighlightColor.rectTransform.anchoredPosition = justSelected.GetComponent<RectTransform>().anchoredPosition;
+    }
+
+    //turns entire canvas to white
     public void ClearCanvas()
     {
         for (int x = 0; x < canvas.width; x++)
@@ -360,6 +377,7 @@ public class PaintManager : MonoBehaviour {
         canvas.Apply();
     }
 
+    //switches to evaluation panel and starts evaluation process
     public void SubmitPainting()
     {
         SoundManager sound = GameObject.Find("Sound Manager").GetComponent<SoundManager>();

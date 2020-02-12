@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class SettingsManager : MonoBehaviour
 {
-
     //sound 
     private AudioSource backgroundAudio;
     private Toggle musicToggle;
@@ -18,7 +17,7 @@ public class SettingsManager : MonoBehaviour
     {
         if (instance)
         {
-            Destroy(gameObject);
+            Destroy(gameObject); 
             return;
         }
         instance = this;
@@ -46,7 +45,7 @@ public class SettingsManager : MonoBehaviour
 
 
             UpdateUI();
-        }      
+        }
     }
 
     //called when any settings UI (toggles, sliders, etc) are modified
