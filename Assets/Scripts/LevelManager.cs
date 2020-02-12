@@ -42,10 +42,13 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        for (int i = GameManager.levelScore.IndexOf(-1) + 1; i < levelButtons.Length; i++) //loops through locked levels
+        if (GameManager.levelScore.IndexOf(-1) != -1)
         {
-            levelButtons[i].transform.GetChild(1).GetComponent<Image>().sprite = lockImage;
-            levelButtons[i].GetComponent<Button>().interactable = false;
+            for (int i = GameManager.levelScore.IndexOf(-1) + 1; i < levelButtons.Length; i++) //loops through locked levels
+            {
+                levelButtons[i].transform.GetChild(1).GetComponent<Image>().sprite = lockImage;
+                levelButtons[i].GetComponent<Button>().interactable = false;
+            }
         }
     }
 
