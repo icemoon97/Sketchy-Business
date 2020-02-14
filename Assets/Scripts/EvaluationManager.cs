@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -68,6 +68,8 @@ public class EvaluationManager : MonoBehaviour
 
         GameManager.score += (int)totalScore;
         GameManager.levelScore[GameManager.currentLevelIndex] = (int)totalScore;
+
+        SavePainting(painting, (int)totalScore);
     }
 
     private Texture2D Pixelate(Texture2D input, float factor)
@@ -188,6 +190,34 @@ public class EvaluationManager : MonoBehaviour
         final.Apply();
 
         return final;
+    }
+
+    //saves created painting to user paintings folder as a .png
+    //also saves info about the attempt
+    private void SavePainting(Texture2D painting, int score)
+    {
+        //generating a random file name for painting image
+        System.Random r = new System.Random();
+        string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        string random = "";
+        for (int i = 0; i < 20; i++)
+        {
+            random += chars[r.Next(chars.Length)];
+        }
+
+        System.IO.File.WriteAllBytes(Application.dataPath + "\\User Paintings\\" + random + ".png", painting.EncodeToPNG());
+
+        string date = DateTime.Now.ToString();
+        date = date.Split()[0];
+
+        PaintingInfo info = new PaintingInfo();
+        info.fileName = random;
+        info.score = score;
+        info.funFact = "I'll do this later";
+        info.datePainted = date;
+        info.paintingName = "under construction";
+
+        GameManager.paintingInfo.Add(info);
     }
 
     public void BackToMenu()

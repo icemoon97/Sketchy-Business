@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.IO;
-using System.Text;
-using System.Runtime.Serialization.Formatters.Binary;
 
 public class LevelManager : MonoBehaviour
 {
@@ -27,6 +25,8 @@ public class LevelManager : MonoBehaviour
             {
                 GameManager.levelScore.Add(-1); 
             }
+
+            GameManager.paintingInfo = new List<PaintingInfo>();
 
             GameManager.score = 0;
             GameManager.music = true;
@@ -55,7 +55,7 @@ public class LevelManager : MonoBehaviour
     //saves the current gamedata to a file
     public void SaveGame()
     {
-        GameData data = new GameData(GameManager.score, GameManager.levelScore, GameManager.music, GameManager.musicVol);
+        GameData data = new GameData(GameManager.score, GameManager.levelScore, GameManager.paintingInfo, GameManager.music, GameManager.musicVol);
         string json = JsonUtility.ToJson(data);
         Debug.Log(json);
 
@@ -89,6 +89,7 @@ public class LevelManager : MonoBehaviour
 
         GameManager.score = data.score;
         GameManager.levelScore = data.levelScore;
+        GameManager.paintingInfo = data.paintingInfo;
         GameManager.music = data.music;
         GameManager.musicVol = data.musicVol;
     }
@@ -96,6 +97,7 @@ public class LevelManager : MonoBehaviour
     public void ExitGame()
     {
         SaveGame();
+
         Application.Quit();
     }
 
@@ -108,6 +110,4 @@ public class LevelManager : MonoBehaviour
         SceneManager.LoadScene("Painting");
 
     }
-
-
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -312,16 +310,6 @@ public class PaintManager : MonoBehaviour {
         SaveState();
     }
 
-    //saves current canvas state to user paintings folder as a .png
-    private void SaveImage()
-    {
-        string date = DateTime.Now.ToString();
-        date = date.Replace("/", "."); // "/" and ":" can't be in file names
-        date = date.Replace(":", ".");
-
-        System.IO.File.WriteAllBytes(Application.dataPath + "\\User Paintings\\(" + date + ").png", canvas.EncodeToPNG());
-    }
-
     //adds current canvas state to history
     public void SaveState()
     {
@@ -383,7 +371,6 @@ public class PaintManager : MonoBehaviour {
         SoundManager sound = GameObject.Find("Sound Manager").GetComponent<SoundManager>();
         sound.PlaySound();
 
-        SaveImage();
         paintingPanel.SetActive(false);
         evalPanel.SetActive(true);
         evalManager.Evaluate(canvas);
