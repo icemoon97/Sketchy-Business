@@ -217,7 +217,7 @@ public class EvaluationManager : MonoBehaviour
         info.datePainted = date;
         info.paintingName = "under construction";
 
-        GameManager.paintingInfo.Add(info);
+        GameManager.paintings.Add(info);
     }
 
     public void BackToMenu()

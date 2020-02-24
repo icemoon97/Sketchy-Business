@@ -10,7 +10,7 @@ public static class GameManager
     public static int score;
     public static List<int> levelScore; //score on each level
 
-    public static List<PaintingInfo> paintingInfo;
+    public static List<PaintingInfo> paintings;
 
     //sound settings
     public static bool music;

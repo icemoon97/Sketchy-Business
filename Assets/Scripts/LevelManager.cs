@@ -26,11 +26,19 @@ public class LevelManager : MonoBehaviour
                 GameManager.levelScore.Add(-1); 
             }
 
-            GameManager.paintingInfo = new List<PaintingInfo>();
+            GameManager.paintings = new List<PaintingInfo>();
 
+            //default settings
             GameManager.score = 0;
             GameManager.music = true;
             GameManager.musicVol = 0.2f;
+        }
+
+        //creates folder for paintings if it doesn't exist already
+        DirectoryInfo paintingFolder = new DirectoryInfo(Application.dataPath + "\\User Paintings");
+        if (!paintingFolder.Exists)
+        {
+            paintingFolder.Create();
         }
 
         if (GameManager.levelScore != null) //so that game is saved automatically when returning to main menu
@@ -55,7 +63,7 @@ public class LevelManager : MonoBehaviour
     //saves the current gamedata to a file
     public void SaveGame()
     {
-        GameData data = new GameData(GameManager.score, GameManager.levelScore, GameManager.paintingInfo, GameManager.music, GameManager.musicVol);
+        GameData data = new GameData(GameManager.score, GameManager.levelScore, GameManager.paintings, GameManager.music, GameManager.musicVol);
         string json = JsonUtility.ToJson(data);
         Debug.Log(json);
 
@@ -89,7 +97,7 @@ public class LevelManager : MonoBehaviour
 
         GameManager.score = data.score;
         GameManager.levelScore = data.levelScore;
-        GameManager.paintingInfo = data.paintingInfo;
+        GameManager.paintings = data.paintings;
         GameManager.music = data.music;
         GameManager.musicVol = data.musicVol;
     }

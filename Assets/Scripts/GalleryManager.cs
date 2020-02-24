@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class GalleryManager : MonoBehaviour
 {
-
     public float moveSpeed = 0.02f;
 
     public GameObject galleryDisplayPrefab;
@@ -26,23 +25,27 @@ public class GalleryManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //loading all paintings as textures from files
         DirectoryInfo paintingFolder = new DirectoryInfo(Application.dataPath + "\\User Paintings");
-        if (!paintingFolder.Exists)
-        {
-            paintingFolder.Create();
-        }
         List<Texture2D> paintingTextures = new List<Texture2D>();
-        foreach (FileInfo file in paintingFolder.GetFiles())
+        foreach (PaintingInfo painting in GameManager.paintings)
         {
-            if (!(file.Name.Substring(file.Name.Length - 5) == ".meta"))
+            string fileName = painting.fileName + ".png";
+
+            //finding image file in folder
+            foreach (FileInfo file in paintingFolder.GetFiles())
             {
-                byte[] byteArray = File.ReadAllBytes(Application.dataPath + "\\User Paintings\\" + file.Name);
-                Texture2D loaded = new Texture2D(2, 2);
-                loaded.LoadImage(byteArray);
-                paintingTextures.Add(loaded);
+                if (file.Name == fileName)
+                {
+                    byte[] byteArray = File.ReadAllBytes(Application.dataPath + "\\User Paintings\\" + file.Name);
+                    Texture2D loaded = new Texture2D(2, 2);
+                    loaded.LoadImage(byteArray);
+                    paintingTextures.Add(loaded);
+                }
             }
         }
 
+        //turns each texture into gameobject, resizes, and places them in stack
         paintings = new List<Transform>();
         stackLocs = getStackLocations(paintingTextures.Count);
         for (int i = 0; i < paintingTextures.Count; i++)
@@ -69,12 +72,16 @@ public class GalleryManager : MonoBehaviour
         scoreText.text = "Score: " + GameManager.score;
 
         prevButton.interactable = false;
+        if (paintings.Count == 1)
+        {
+            nextButton.interactable = false;
+        }
     }
 
-    private List<Vector3> getStackLocations(int n)
+    private List<Vector3> getStackLocations(int stackSize)
     {
         List<Vector3> stackLocations = new List<Vector3>();
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < stackSize; i++)
         {
             Vector3 loc = stackLocStart.position + new Vector3(0, 0.25f * i, 0);
             stackLocations.Add(loc);
