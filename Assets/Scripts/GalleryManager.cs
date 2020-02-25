@@ -20,7 +20,10 @@ public class GalleryManager : MonoBehaviour
     public Button nextButton;
     public Button prevButton;
 
+    public Text titleText;
+    public Text dateText;
     public Text scoreText;
+    public Text funFact;
 
     // Start is called before the first frame update
     void Start()
@@ -56,7 +59,8 @@ public class GalleryManager : MonoBehaviour
 
             Vector2 aspectRatio = new Vector2(paintingTextures[i].width, paintingTextures[i].height);
             aspectRatio.Normalize();
-            aspectRatio *= 5;
+            aspectRatio /= Mathf.Max(aspectRatio.x, aspectRatio.y);
+            aspectRatio *= 3;
             displayObject.localScale = new Vector3(aspectRatio.x, aspectRatio.y, displayObject.localScale.z);
 
             RawImage display = displayObject.GetChild(1).GetChild(0).gameObject.GetComponent<RawImage>();
@@ -69,13 +73,24 @@ public class GalleryManager : MonoBehaviour
         paintings[0].transform.position = displayLoc.position;
         paintings[0].transform.rotation = displayLoc.rotation;
 
-        scoreText.text = "Score: " + GameManager.score;
+        updateUI();
 
         prevButton.interactable = false;
         if (paintings.Count == 1)
         {
             nextButton.interactable = false;
         }
+    }
+
+    //updates UI text with painting info (score, date painted, etc)
+    private void updateUI()
+    {
+        PaintingInfo info = GameManager.paintings[displayIndex];
+
+        titleText.text = info.paintingName;
+        dateText.text = "Date created: " + info.datePainted;
+        scoreText.text = "Score: " + info.score;
+        funFact.text = "Fun Fact: " + info.funFact;
     }
 
     private List<Vector3> getStackLocations(int stackSize)
@@ -97,6 +112,8 @@ public class GalleryManager : MonoBehaviour
             StartCoroutine(MovePainting(paintings[displayIndex], stackLocs[displayIndex], stackLocStart.rotation, moveSpeed));
             displayIndex++;
 
+            updateUI();
+
             //moves next painting from stack to display
             StartCoroutine(MovePainting(paintings[displayIndex], displayLoc.position, displayLoc.rotation, moveSpeed));
         }
@@ -109,6 +126,8 @@ public class GalleryManager : MonoBehaviour
             //moves currently displayed painting back to stack
             StartCoroutine(MovePainting(paintings[displayIndex], stackLocs[displayIndex], stackLocStart.rotation, moveSpeed));
             displayIndex--;
+
+            updateUI();
 
             //moves next painting from stack to display
             StartCoroutine(MovePainting(paintings[displayIndex], displayLoc.position, displayLoc.rotation, moveSpeed));

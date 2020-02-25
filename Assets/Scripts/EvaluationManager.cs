@@ -213,9 +213,9 @@ public class EvaluationManager : MonoBehaviour
         PaintingInfo info = new PaintingInfo();
         info.fileName = random;
         info.score = score;
-        info.funFact = "I'll do this later";
+        info.funFact = GameManager.levelToLoad.funFact;
         info.datePainted = date;
-        info.paintingName = "under construction";
+        info.paintingName = GameManager.levelToLoad.paintingName;
 
         GameManager.paintings.Add(info);
     }
