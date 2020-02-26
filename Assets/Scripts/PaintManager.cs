@@ -129,6 +129,7 @@ public class PaintManager : MonoBehaviour {
         image.rectTransform.sizeDelta = aspectRatio;
         referencePainting.rectTransform.sizeDelta = aspectRatio;
 
+        //creating all the color buttons
         foreach (Color c in level.colorPalette)
         {
             GameObject colorButton = Instantiate(colorButtonPrefab, colorPanel);
@@ -136,8 +137,6 @@ public class PaintManager : MonoBehaviour {
             colorButton.GetComponent<Button>().onClick.AddListener( delegate { SetColor(c); } );
             colorButton.GetComponent<Button>().onClick.AddListener( delegate { moveSelectionHighlightColor(colorButton); } );
         }
-
-        brushColor = level.colorPalette[0];
         
         if (level.timeLimit > 0)
         {
@@ -373,6 +372,8 @@ public class PaintManager : MonoBehaviour {
 
         paintingPanel.SetActive(false);
         evalPanel.SetActive(true);
+
+
         evalManager.Evaluate(canvas);
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 using UnityEngine.SceneManagement;
+
 
 public class EvaluationManager : MonoBehaviour
 {
@@ -13,10 +15,15 @@ public class EvaluationManager : MonoBehaviour
 
     public Text scoreText;
 
+    public Image loadingImage;
+
+    [Header("Debug Stuff")]
     public RawImage[] referencesTesting;
     public RawImage[] userPaintingTesting;
     public RawImage[] differenceTesting;
     public Text[] differenceAverages;
+
+    
 
     private void Start()
     {
@@ -24,6 +31,22 @@ public class EvaluationManager : MonoBehaviour
     }
 
     public void Evaluate(Texture2D painting)
+    {
+
+        int totalScore = CalcScore(painting);
+
+        loadingImage.gameObject.SetActive(false);
+
+        scoreText.text = totalScore + "";
+
+        GameManager.score += totalScore;
+        GameManager.levelScore[GameManager.currentLevelIndex] = totalScore;
+
+        SavePainting(painting, totalScore);
+    }
+
+    //calculates score based upon difference between reference and user painting at different levels of pixelation
+    private int CalcScore(Texture2D painting)
     {
         Texture2D simplified = SimplifyColors((Texture2D)paintManager.referencePainting.mainTexture, GameManager.levelToLoad.colorPalette);
 
@@ -64,12 +87,7 @@ public class EvaluationManager : MonoBehaviour
 
         totalScore = Mathf.Round((5 - totalScore) * 100);
 
-        scoreText.text = totalScore + "";
-
-        GameManager.score += (int)totalScore;
-        GameManager.levelScore[GameManager.currentLevelIndex] = (int)totalScore;
-
-        SavePainting(painting, (int)totalScore);
+        return (int)totalScore;
     }
 
     private Texture2D Pixelate(Texture2D input, float factor)
