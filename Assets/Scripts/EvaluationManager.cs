@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Video;
 using UnityEngine.SceneManagement;
 
 
@@ -23,8 +21,6 @@ public class EvaluationManager : MonoBehaviour
     public RawImage[] differenceTesting;
     public Text[] differenceAverages;
 
-    
-
     private void Start()
     {
         //referenceDisplay.rectTransform.sizeDelta = paintManager.image.rectTransform.sizeDelta;
@@ -40,7 +36,10 @@ public class EvaluationManager : MonoBehaviour
         scoreText.text = totalScore + "";
 
         GameManager.score += totalScore;
-        GameManager.levelScore[GameManager.currentLevelIndex] = totalScore;
+        if (totalScore > GameManager.levelScore[GameManager.currentLevelIndex])
+        {
+            GameManager.levelScore[GameManager.currentLevelIndex] = totalScore;
+        }
 
         SavePainting(painting, totalScore);
     }
@@ -90,6 +89,8 @@ public class EvaluationManager : MonoBehaviour
         return (int)totalScore;
     }
 
+    //returns a new texture, pixelated to the given factor, eg a factor of 3 means texture is turned into 9 (3x3) blocks of color
+    //colors are averaged by adding up RGB values (idk how good of a method that is, I'm not a color theory expert)
     private Texture2D Pixelate(Texture2D input, float factor)
     {
         Texture2D final = new Texture2D(input.width, input.height);

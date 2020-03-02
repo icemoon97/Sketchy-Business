@@ -45,7 +45,9 @@ public class LevelManager : MonoBehaviour
         {
             SaveGame();
         }
-        LoadGame(); 
+        LoadGame();
+
+        Application.wantsToQuit += QuitRequest;
     }
 
     private void Start()
@@ -105,8 +107,14 @@ public class LevelManager : MonoBehaviour
     public void ExitGame()
     {
         SaveGame();
-
         Application.Quit();
+    }
+
+    //called when user closes the game window
+    public bool QuitRequest()
+    {
+        SaveGame();
+        return true;
     }
 
     //loads the level at the given index in the levels array

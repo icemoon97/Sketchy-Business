@@ -31,21 +31,41 @@ public class GalleryManager : MonoBehaviour
         //loading all paintings as textures from files
         DirectoryInfo paintingFolder = new DirectoryInfo(Application.dataPath + "\\User Paintings");
         List<Texture2D> paintingTextures = new List<Texture2D>();
+
+        List<int> toRemove = new List<int>(); //indices that should be removed from GameManager.paintings because the image file has been lost/deleted
+
         foreach (PaintingInfo painting in GameManager.paintings)
         {
             string fileName = painting.fileName + ".png";
+            bool found = false;
 
             //finding image file in folder
             foreach (FileInfo file in paintingFolder.GetFiles())
             {
                 if (file.Name == fileName)
                 {
+                    found = true;
+
                     byte[] byteArray = File.ReadAllBytes(Application.dataPath + "\\User Paintings\\" + file.Name);
                     Texture2D loaded = new Texture2D(2, 2);
                     loaded.LoadImage(byteArray);
                     paintingTextures.Add(loaded);
                 }
             }
+
+            if (!found)
+            {
+                Debug.Log("Painting " + fileName + " not found");
+                toRemove.Add(GameManager.paintings.IndexOf(painting));
+            }
+        }
+
+        toRemove.Sort();
+        toRemove.Reverse();
+        //cant't remove the lost paintings in the earlier loop because compiler freaks out
+        foreach (int i in toRemove)
+        {
+            GameManager.paintings.RemoveAt(i);
         }
 
         //turns each texture into gameobject, resizes, and places them in stack
