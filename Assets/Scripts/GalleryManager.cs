@@ -109,8 +109,20 @@ public class GalleryManager : MonoBehaviour
 
         titleText.text = info.paintingName;
         dateText.text = "Created: " + info.datePainted;
-        scoreText.text = "Score: " + info.score;
+        
         funFact.text = "Fun Fact: " + info.funFact;
+
+        if (info.caught)
+        {
+            scoreText.text = "Confiscated by police";
+            scoreText.color = Color.red;
+
+        }
+        else
+        {
+            scoreText.text = "Successfully sold for $" + info.score;
+            scoreText.color = Color.green;
+        }
     }
 
     private List<Vector3> getStackLocations(int stackSize)

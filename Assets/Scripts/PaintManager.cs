@@ -370,9 +370,8 @@ public class PaintManager : MonoBehaviour {
         SoundManager sound = GameObject.Find("Sound Manager").GetComponent<SoundManager>();
         sound.PlaySound();
 
-        paintingPanel.SetActive(false);
         evalPanel.SetActive(true);
-
+        paintingPanel.SetActive(false);
 
         evalManager.Evaluate(canvas);
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -12,8 +13,9 @@ public class EvaluationManager : MonoBehaviour
     public RawImage userCanvasDisplay;
 
     public Text scoreText;
+    public Text feedbackText;
 
-    public Image loadingImage;
+    public GameObject hmmmImage;
 
     [Header("Debug Stuff")]
     public RawImage[] referencesTesting;
@@ -21,27 +23,44 @@ public class EvaluationManager : MonoBehaviour
     public RawImage[] differenceTesting;
     public Text[] differenceAverages;
 
-    private void Start()
-    {
-        //referenceDisplay.rectTransform.sizeDelta = paintManager.image.rectTransform.sizeDelta;
-    }
-
     public void Evaluate(Texture2D painting)
     {
 
+        StartCoroutine(EvaluationAnimation());
+
         int totalScore = CalcScore(painting);
 
-        loadingImage.gameObject.SetActive(false);
+        scoreText.text = "Score: " + totalScore;
 
-        scoreText.text = totalScore + "";
-
-        GameManager.score += totalScore;
-        if (totalScore > GameManager.levelScore[GameManager.currentLevelIndex])
+        if (totalScore >= GameManager.levelToLoad.scoreCutoff)
         {
-            GameManager.levelScore[GameManager.currentLevelIndex] = totalScore;
+            feedbackText.text = "What a mastepiece!";
+
+            GameManager.score += totalScore;
+            if (totalScore > GameManager.levelScore[GameManager.currentLevelIndex])
+            {
+                GameManager.levelScore[GameManager.currentLevelIndex] = totalScore;
+            }
+        }
+        else
+        {
+            feedbackText.text = "This is clearly a forgery!";
         }
 
         SavePainting(painting, totalScore);
+    }
+
+    private IEnumerator EvaluationAnimation()
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            hmmmImage.GetComponent<RectTransform>().sizeDelta = new Vector3(i * 10, i * 10);
+
+            yield return new WaitForSeconds(.02f);
+        }
+        hmmmImage.SetActive(false);
+
+        feedbackText.gameObject.SetActive(true);
     }
 
     //calculates score based upon difference between reference and user painting at different levels of pixelation
@@ -177,7 +196,7 @@ public class EvaluationManager : MonoBehaviour
     {
         if (a.width != b.width || a.height != b.height)
         {
-            throw new System.Exception("textures are different sizes");
+            throw new Exception("textures are different sizes");
         }
 
         Texture2D final = new Texture2D(a.width, a.height);
@@ -232,6 +251,7 @@ public class EvaluationManager : MonoBehaviour
         PaintingInfo info = new PaintingInfo();
         info.fileName = random;
         info.score = score;
+        info.caught = score < GameManager.levelToLoad.scoreCutoff;
         info.funFact = GameManager.levelToLoad.funFact;
         info.datePainted = date;
         info.paintingName = GameManager.levelToLoad.paintingName;
