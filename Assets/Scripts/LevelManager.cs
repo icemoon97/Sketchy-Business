@@ -32,6 +32,8 @@ public class LevelManager : MonoBehaviour
             GameManager.score = 0;
             GameManager.music = true;
             GameManager.musicVol = 0.2f;
+            GameManager.soundEffects = true;
+            GameManager.soundEffectVol = 0.2f;
         }
 
         //creates folder for paintings if it doesn't exist already
@@ -65,7 +67,7 @@ public class LevelManager : MonoBehaviour
     //saves the current gamedata to a file
     public void SaveGame()
     {
-        GameData data = new GameData(GameManager.score, GameManager.levelScore, GameManager.paintings, GameManager.music, GameManager.musicVol);
+        GameData data = new GameData(GameManager.score, GameManager.levelScore, GameManager.paintings, GameManager.music, GameManager.musicVol, GameManager.soundEffects, GameManager.soundEffectVol);
         string json = JsonUtility.ToJson(data);
         Debug.Log(json);
 
@@ -102,6 +104,8 @@ public class LevelManager : MonoBehaviour
         GameManager.paintings = data.paintings;
         GameManager.music = data.music;
         GameManager.musicVol = data.musicVol;
+        GameManager.soundEffects = data.soundEffects;
+        GameManager.soundEffectVol = data.soundEffectVol;
     }
     
     public void ExitGame()

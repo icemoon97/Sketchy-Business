@@ -34,7 +34,7 @@ public class EvaluationManager : MonoBehaviour
 
         if (totalScore >= GameManager.levelToLoad.scoreCutoff)
         {
-            feedbackText.text = "What a mastepiece!";
+            feedbackText.text = "What a masterpiece!";
 
             GameManager.score += totalScore;
             if (totalScore > GameManager.levelScore[GameManager.currentLevelIndex])
