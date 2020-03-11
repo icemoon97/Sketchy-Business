@@ -108,7 +108,7 @@ public class GalleryManager : MonoBehaviour
         PaintingInfo info = GameManager.paintings[displayIndex];
 
         titleText.text = info.paintingName;
-        dateText.text = "Created: " + info.datePainted;
+        dateText.text = "Forged: " + info.datePainted;
         
         funFact.text = "Fun Fact: " + info.funFact;
 

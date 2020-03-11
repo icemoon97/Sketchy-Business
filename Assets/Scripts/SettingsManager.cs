@@ -10,6 +10,9 @@ public class SettingsManager : MonoBehaviour
     private AudioSource backgroundAudio;
     private Toggle musicToggle;
     private Slider musicVolumeSlider;
+    private Toggle soundEffectToggle;
+    private Slider soundEffectVolumeSlider;
+
 
     //prevents duplicate settings manager from being created when going back to the main menu
     public static SettingsManager instance;
@@ -35,6 +38,10 @@ public class SettingsManager : MonoBehaviour
         {
             musicToggle = GameObject.Find("Music Toggle").GetComponent<Toggle>();
             musicVolumeSlider = GameObject.Find("Music Volume Slider").GetComponent<Slider>();
+            soundEffectToggle = GameObject.Find("Sound Effects Toggle").GetComponent<Toggle>();
+            soundEffectVolumeSlider = GameObject.Find("Sound Effects Slider").GetComponent<Slider>();
+            
+            UpdateUI();
 
             musicToggle.onValueChanged.AddListener(delegate {
                 UpdateSettings();
@@ -42,9 +49,12 @@ public class SettingsManager : MonoBehaviour
             musicVolumeSlider.onValueChanged.AddListener(delegate {
                 UpdateSettings();
             });
-
-
-            UpdateUI();
+            soundEffectToggle.onValueChanged.AddListener(delegate {
+                UpdateSettings();
+            });
+            soundEffectVolumeSlider.onValueChanged.AddListener(delegate {
+                UpdateSettings();
+            });
         }
     }
 
@@ -53,6 +63,8 @@ public class SettingsManager : MonoBehaviour
     {
         GameManager.music = musicToggle.isOn;
         GameManager.musicVol = musicVolumeSlider.value;
+        GameManager.soundEffects = soundEffectToggle.isOn;
+        GameManager.soundEffectVol = soundEffectVolumeSlider.value;
 
         if (GameManager.music)
         {
@@ -74,5 +86,11 @@ public class SettingsManager : MonoBehaviour
 
         musicVolumeSlider.gameObject.SetActive(GameManager.music);
         musicVolumeSlider.value = GameManager.musicVol;
+
+        soundEffectToggle.isOn = GameManager.soundEffects;
+
+        Debug.Log(GameManager.soundEffects);
+        soundEffectVolumeSlider.gameObject.SetActive(GameManager.soundEffects);
+        soundEffectVolumeSlider.value = GameManager.soundEffectVol;
     }
 }

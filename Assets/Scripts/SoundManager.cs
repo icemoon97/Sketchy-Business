@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
-    private AudioSource audioData;
+    private AudioSource audio;
 
     public void Start()
     {
-        audioData = GetComponent<AudioSource>();
+        audio = GetComponent<AudioSource>();
     }
 
     public void PlaySound()
     {
-        audioData.Play(0);
+        audio.volume = GameManager.soundEffectVol;
+        if (GameManager.soundEffects)
+        {
+            audio.Play(0);
+        }
     }
 }

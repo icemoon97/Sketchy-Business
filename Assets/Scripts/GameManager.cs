@@ -15,4 +15,6 @@ public static class GameManager
     //sound settings
     public static bool music;
     public static float musicVol;
+    public static bool soundEffects;
+    public static float soundEffectVol;
 }
