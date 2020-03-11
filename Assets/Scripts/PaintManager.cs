@@ -23,8 +23,9 @@ public class PaintManager : MonoBehaviour {
     private LevelTimer timer;
 
     public Image selectionHighlightPaintTools;
-    public Image selectionHighlightBrushSize;
     public Image selectionHighlightColor;
+
+    public Slider brushSizeSlider;
 
     [Header("Paint Settings")]
     public BrushStyle brushStyle;
@@ -71,6 +72,11 @@ public class PaintManager : MonoBehaviour {
         history = new List<Texture2D>();
         ClearCanvas();
         historyIndex = 0;
+
+        //makes brush size actually update when slider is changed
+        brushSizeSlider.onValueChanged.AddListener(delegate {
+            brushSize = (int)brushSizeSlider.value;
+        });
 
         prevMousePosition = getAdjustedMousePos();
     }
@@ -282,11 +288,6 @@ public class PaintManager : MonoBehaviour {
     public void moveSelectionHighlightPaintTools(GameObject justSelected)
     {
         selectionHighlightPaintTools.rectTransform.anchoredPosition = justSelected.GetComponent<RectTransform>().anchoredPosition;
-    }
-
-    public void moveSelectionHighlightBrushSize(GameObject justSelected)
-    {
-        selectionHighlightBrushSize.rectTransform.anchoredPosition = justSelected.GetComponent<RectTransform>().anchoredPosition;
     }
 
     public void moveSelectionHighlightColor(GameObject justSelected)

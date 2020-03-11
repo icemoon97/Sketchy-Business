@@ -120,7 +120,7 @@ public class GalleryManager : MonoBehaviour
         }
         else
         {
-            scoreText.text = "Successfully sold for $" + info.score;
+            scoreText.text = "Sold for $" + info.score;
             scoreText.color = Color.green;
         }
     }

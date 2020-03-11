@@ -25,6 +25,7 @@ public class EvaluationManager : MonoBehaviour
 
     public void Evaluate(Texture2D painting)
     {
+        userCanvasDisplay.rectTransform.sizeDelta = new Vector2(painting.width, painting.height);
 
         StartCoroutine(EvaluationAnimation());
 
