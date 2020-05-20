@@ -12,6 +12,7 @@ public class PaintManager : MonoBehaviour {
     public Image referencePainting; //image user is trying to replicate
 
     public RawImage image; //displays canvas
+    private Vector3 imageBasePos;
 
     private Texture2D canvas;
     private List<Texture2D> history; //list of all previous states of the canvas
@@ -69,6 +70,8 @@ public class PaintManager : MonoBehaviour {
 
         image.texture = canvas;
 
+        imageBasePos = image.transform.position;
+
         history = new List<Texture2D>();
         ClearCanvas();
         historyIndex = 0;
@@ -86,8 +89,10 @@ public class PaintManager : MonoBehaviour {
     {
         Vector3 mousePos = getAdjustedMousePos();
 
+        //detecting drawing
         if (Input.GetMouseButton(0))
         {
+            //draws in all positions between old and new mouse pos
             for (float i = 0; i <= 1; i += 2 / Vector3.Distance(mousePos, prevMousePosition))
             {
                 Draw(Vector3.Lerp(mousePos, prevMousePosition, i));
@@ -96,6 +101,7 @@ public class PaintManager : MonoBehaviour {
             canvas.Apply();
         }
 
+        //key inputs for undo/redo
         if (Input.GetKeyDown(KeyCode.Z) && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
         {
             Undo();
@@ -105,6 +111,24 @@ public class PaintManager : MonoBehaviour {
             Redo();
         }
 
+        //handling challenges
+        if (GameManager.levelToLoad.activeChallenges.shaking)
+        {
+            Vector2 maxDistance = new Vector2(10, 10); //max distance canvas can move from base position in x,y
+            float shakiness = 2f; //how much canvas can move per frame
+
+            Vector3 pos = image.rectTransform.position;
+            Vector3 newPos = new Vector3(pos.x + Random.Range(-shakiness, shakiness), pos.y + Random.Range(-shakiness, shakiness), pos.z);
+            image.rectTransform.position = new Vector3(
+                Mathf.Max(Mathf.Min(imageBasePos.x + maxDistance.x, newPos.x), imageBasePos.x - maxDistance.x),
+                Mathf.Max(Mathf.Min(imageBasePos.y + maxDistance.y, newPos.y), imageBasePos.y - maxDistance.y),
+                pos.y);
+
+            Debug.Log(imageBasePos);
+            Debug.Log(image.rectTransform.position);
+        }
+
+        //sumbits painting if timer has expired
         if (timer.time <= 0 && timer.enabled)
         {
             SubmitPainting();

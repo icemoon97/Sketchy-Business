@@ -15,8 +15,6 @@ public class EvaluationManager : MonoBehaviour
     public Text scoreText;
     public Text feedbackText;
 
-    public GameObject hmmmImage;
-
     [Header("Debug Stuff")]
     public RawImage[] referencesTesting;
     public RawImage[] userPaintingTesting;
@@ -27,7 +25,7 @@ public class EvaluationManager : MonoBehaviour
     {
         userCanvasDisplay.rectTransform.sizeDelta = new Vector2(painting.width, painting.height);
 
-        StartCoroutine(EvaluationAnimation());
+        feedbackText.gameObject.SetActive(true);
 
         int totalScore = CalcScore(painting);
 
@@ -49,19 +47,6 @@ public class EvaluationManager : MonoBehaviour
         }
 
         SavePainting(painting, totalScore);
-    }
-
-    private IEnumerator EvaluationAnimation()
-    {
-        for (int i = 0; i < 100; i++)
-        {
-            hmmmImage.GetComponent<RectTransform>().sizeDelta = new Vector3(i * 10, i * 10);
-
-            yield return new WaitForSeconds(.02f);
-        }
-        hmmmImage.SetActive(false);
-
-        feedbackText.gameObject.SetActive(true);
     }
 
     //calculates score based upon difference between reference and user painting at different levels of pixelation

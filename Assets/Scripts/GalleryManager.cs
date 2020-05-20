@@ -80,7 +80,7 @@ public class GalleryManager : MonoBehaviour
             Vector2 aspectRatio = new Vector2(paintingTextures[i].width, paintingTextures[i].height);
             aspectRatio.Normalize();
             aspectRatio /= Mathf.Max(aspectRatio.x, aspectRatio.y);
-            aspectRatio *= 3;
+            aspectRatio *= 2;
             displayObject.localScale = new Vector3(aspectRatio.x, aspectRatio.y, displayObject.localScale.z);
 
             RawImage display = displayObject.GetChild(1).GetChild(0).gameObject.GetComponent<RawImage>();

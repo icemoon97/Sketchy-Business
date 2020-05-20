@@ -11,4 +11,13 @@ public class LevelInfo
 
     public string paintingName;
     public string funFact;
+
+    //improves readability and makes editting easy in inspector
+    [Serializable]
+    public struct Challenges
+    {
+        public bool shaking;
+        public bool disappearingInk;
+    }
+    public Challenges activeChallenges;
 }
