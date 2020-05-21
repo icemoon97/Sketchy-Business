@@ -12,7 +12,6 @@ public class PaintManager : MonoBehaviour {
     public Image referencePainting; //image user is trying to replicate
 
     public RawImage image; //displays canvas
-    private Vector3 imageBasePos;
 
     private Texture2D canvas;
     private List<Texture2D> history; //list of all previous states of the canvas
@@ -36,6 +35,12 @@ public class PaintManager : MonoBehaviour {
     public int sprayCanDensity;
 
     private Vector3 prevMousePosition;
+
+    [Header("Challenge Variables")]
+    public float shakeFactor; //how much canvas can move per frame during shaking
+    private Vector3 imageBasePos; //needed for shaking
+    private Texture2D fadingCanvas;
+    
 
     [Header("Default Level (for testing)")]
     public LevelInfo defaultLevel;
@@ -66,14 +71,14 @@ public class PaintManager : MonoBehaviour {
         paintingPanel.SetActive(true);
         evalPanel.SetActive(false);
 
-        canvas = new Texture2D((int)referencePainting.mainTexture.width, (int)referencePainting.mainTexture.height);
+        canvas = new Texture2D(referencePainting.mainTexture.width, referencePainting.mainTexture.height);
 
         image.texture = canvas;
 
         imageBasePos = image.transform.position;
 
         history = new List<Texture2D>();
-        ClearCanvas();
+        ClearCanvas(canvas);
         historyIndex = 0;
 
         //makes brush size actually update when slider is changed
@@ -82,6 +87,13 @@ public class PaintManager : MonoBehaviour {
         });
 
         prevMousePosition = getAdjustedMousePos();
+
+        if (GameManager.levelToLoad.activeChallenges.disappearingInk)
+        {
+            fadingCanvas = new Texture2D(referencePainting.mainTexture.width, referencePainting.mainTexture.height);
+            ClearCanvas(fadingCanvas);
+            image.texture = fadingCanvas; 
+        }
     }
 	
 	// Update is called once per frame
@@ -95,7 +107,12 @@ public class PaintManager : MonoBehaviour {
             //draws in all positions between old and new mouse pos
             for (float i = 0; i <= 1; i += 2 / Vector3.Distance(mousePos, prevMousePosition))
             {
-                Draw(Vector3.Lerp(mousePos, prevMousePosition, i));
+                Draw(Vector3.Lerp(mousePos, prevMousePosition, i), canvas);
+
+                if (GameManager.levelToLoad.activeChallenges.disappearingInk)
+                {
+                    Draw(Vector3.Lerp(mousePos, prevMousePosition, i), fadingCanvas); //so users drawings so up temporarily
+                }
             }
 
             canvas.Apply();
@@ -115,17 +132,35 @@ public class PaintManager : MonoBehaviour {
         if (GameManager.levelToLoad.activeChallenges.shaking)
         {
             Vector2 maxDistance = new Vector2(10, 10); //max distance canvas can move from base position in x,y
-            float shakiness = 2f; //how much canvas can move per frame
 
             Vector3 pos = image.rectTransform.position;
-            Vector3 newPos = new Vector3(pos.x + Random.Range(-shakiness, shakiness), pos.y + Random.Range(-shakiness, shakiness), pos.z);
+            Vector3 newPos = new Vector3(pos.x + Random.Range(-shakeFactor, shakeFactor), pos.y + Random.Range(-shakeFactor, shakeFactor), pos.z);
             image.rectTransform.position = new Vector3(
                 Mathf.Max(Mathf.Min(imageBasePos.x + maxDistance.x, newPos.x), imageBasePos.x - maxDistance.x),
                 Mathf.Max(Mathf.Min(imageBasePos.y + maxDistance.y, newPos.y), imageBasePos.y - maxDistance.y),
                 pos.y);
+        }
+        if (GameManager.levelToLoad.activeChallenges.disappearingInk)
+        {
+            /*              very cool glitch
+            Color[] arr = new Color[canvas.height * canvas.width];
+            for (int i = 0; i < arr.Length; i++)
+            {
+                Color c = fadingCanvas.GetPixel(i / canvas.height, i % canvas.width);
+                c = new Color(c.r + 0.01f, c.g + 0.01f, c.b + 0.01f);
+                arr[i] = c;
+            }
+            fadingCanvas.SetPixels(arr, 0);
+            */
 
-            Debug.Log(imageBasePos);
-            Debug.Log(image.rectTransform.position);
+            Color[] colors = fadingCanvas.GetPixels();
+            for (int i = 0; i < colors.Length; i++)
+            {
+                colors[i] = new Color(colors[i].r + 0.01f, colors[i].g + 0.01f, colors[i].b + 0.01f);
+            }
+            fadingCanvas.SetPixels(colors, 0);
+
+            fadingCanvas.Apply(false);
         }
 
         //sumbits painting if timer has expired
@@ -180,7 +215,7 @@ public class PaintManager : MonoBehaviour {
     }
 
     //draws at given position with current color, size and brush style
-    private void Draw(Vector3 pos)
+    private void Draw(Vector3 pos, Texture2D canvas)
     {
         Rect canvasBounds = new Rect(0, 0, canvas.width, canvas.height);
         if (brushStyle == BrushStyle.SquareBrush)
@@ -215,7 +250,7 @@ public class PaintManager : MonoBehaviour {
         {
             for (float i  = 0; i < sprayCanDensity * (brushSize / 10f); i++)
             {
-                Vector2 rand = UnityEngine.Random.insideUnitCircle * (brushSize / 2f);
+                Vector2 rand = Random.insideUnitCircle * (brushSize / 2f);
                 Vector2Int pixel = new Vector2Int(Mathf.RoundToInt(pos.x + rand.x), Mathf.RoundToInt(pos.y + rand.y));
                 if (canvasBounds.Contains(pixel))
                 {
@@ -320,7 +355,7 @@ public class PaintManager : MonoBehaviour {
     }
 
     //turns entire canvas to white
-    public void ClearCanvas()
+    private void ClearCanvas(Texture2D canvas)
     {
         for (int x = 0; x < canvas.width; x++)
         {
@@ -332,6 +367,16 @@ public class PaintManager : MonoBehaviour {
         canvas.Apply();
 
         SaveState();
+    }
+
+    //method that buttons can actually call
+    public void ClearCanvasExternal()
+    {
+        ClearCanvas(canvas);
+        if (GameManager.levelToLoad.activeChallenges.disappearingInk)
+        {
+            ClearCanvas(fadingCanvas);
+        }
     }
 
     //adds current canvas state to history
