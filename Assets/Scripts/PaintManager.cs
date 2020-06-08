@@ -40,6 +40,7 @@ public class PaintManager : MonoBehaviour {
     public float shakeFactor; //how much canvas can move per frame during shaking
     private Vector3 imageBasePos; //needed for shaking
     private Texture2D fadingCanvas;
+    public float fadeSpeed; //how fast colors fade
     
 
     [Header("Default Level (for testing)")]
@@ -156,7 +157,7 @@ public class PaintManager : MonoBehaviour {
             Color[] colors = fadingCanvas.GetPixels();
             for (int i = 0; i < colors.Length; i++)
             {
-                colors[i] = new Color(colors[i].r + 0.01f, colors[i].g + 0.01f, colors[i].b + 0.01f);
+                colors[i] = new Color(colors[i].r + fadeSpeed, colors[i].g + fadeSpeed, colors[i].b + fadeSpeed);
             }
             fadingCanvas.SetPixels(colors, 0);
 

@@ -57,6 +57,7 @@ public class EvaluationManager : MonoBehaviour
         referenceDisplay.texture = simplified;
         userCanvasDisplay.texture = painting;
 
+        //creates a series of increasingly pixelated textures, both of user painting and reference. (pattern is 2x2, 4x4, 8x8, etc)
         for (int i = 0; i < userPaintingTesting.Length; i++)
         {
             userPaintingTesting[i].texture = Pixelate(painting, Mathf.Pow(2, i + 1));
@@ -71,9 +72,12 @@ public class EvaluationManager : MonoBehaviour
 
         for (int i = 0; i < differenceTesting.Length; i++)
         {
+            //creates new texture where each pixel represents the relative difference between 
+            //the pixel in the users painting and the reference painting, according to the LABColor formula
             Texture2D diffTex = CalcDistances((Texture2D)referencesTesting[i].texture, (Texture2D)userPaintingTesting[i].texture);
             differenceTesting[i].texture = diffTex;
 
+            //score is simply calculated as average of differences
             float average = 0;
             for (int x = 0; x < diffTex.width; x++)
             {
@@ -106,6 +110,8 @@ public class EvaluationManager : MonoBehaviour
         {
             for (int gridY = 0; gridY < factor; gridY++)
             {
+                //adds up all RGB values in the grid square so average color can be determined
+                //there might be some better way to determine an average color from a block, but for now this works fine
                 Vector3 colorTotals = new Vector3();
                 for (int x = 0; x < gridSquare.x; x++)
                 {
@@ -132,7 +138,9 @@ public class EvaluationManager : MonoBehaviour
             }
         }
 
+        //only uploads texture data after all changes have been made for efficency
         final.Apply();
+
         return final;
     }
 
@@ -141,6 +149,7 @@ public class EvaluationManager : MonoBehaviour
     {
         Texture2D final = new Texture2D(input.width, input.height);
 
+        //converting all colors to LABColor for comparison
         LABColor[] colors = new LABColor[palette.Length];
         for (int i = 0; i < palette.Length; i++)
         {
@@ -151,11 +160,13 @@ public class EvaluationManager : MonoBehaviour
         {
             for (int y = 0; y < input.height; y++)
             {
+                //converts to LABColor so a proper comparison can be made
                 LABColor pixel = LABColor.FromColor(input.GetPixel(x, y));
 
                 float nearestDist = 999999;
                 LABColor nearest = colors[0];
 
+                //compares each color in palette to pixel
                 foreach (LABColor color in colors)
                 {
                     float dist = LABColor.Distance(pixel, color);
@@ -168,6 +179,7 @@ public class EvaluationManager : MonoBehaviour
 
                 Color toSet = LABColor.ToColor(nearest);
 
+                //sets pixel to closest color
                 final.SetPixel(x, y, toSet);
             }
         }
